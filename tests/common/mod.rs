@@ -47,8 +47,6 @@ pub fn extract_result(response: &Value) -> Option<&Value> {
     response.get("result")
 }
 
-
-
 #[cfg(test)]
 mod tests {
     use super::*;
