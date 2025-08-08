@@ -151,7 +151,7 @@ async fn handle_tools_call(params: Value, outline_client: &OutlineClient) -> Res
     debug!("📊 Arguments: {}", arguments);
 
     // Call tool
-    let result = tools::call_tool(name, arguments, outline_client).await?;
+    let result: Value = tools::call_tool(name, arguments, outline_client).await?;
 
     Ok(json!({
         "content": [

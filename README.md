@@ -134,13 +134,15 @@ nix develop              # Native development with tools
 nix develop .#musl       # musl static build environment  
 nix develop .#windows    # Windows cross-compilation
 
-# Automated checks
-nix build .#checks.x86_64-linux.format  # Code formatting
-nix build .#checks.x86_64-linux.clippy  # Linting
-nix build .#checks.x86_64-linux.test    # Testing
-
 # Package building
-nix build                # Build final package
+nix build                # Native Linux build
+nix build .#musl         # Static musl build (portable Linux)
+nix build .#windows      # Windows cross-compilation
+
+# Alternative: Use dev environment for building
+nix develop -c cargo build --release
+nix develop .#musl -c cargo build --target x86_64-unknown-linux-musl --release  
+nix develop .#windows -c cargo build --target x86_64-pc-windows-gnu --release
 ```
 
 ### 🔧 Configuration

@@ -16,6 +16,15 @@ rust-version = "1.75"  # Real minimum version for edition 2021
 name = "outline-mcp"
 path = "src/main.rs"
 
+# Integration tests
+[[test]]
+name = "mcp_tests"
+path = "tests/integration/mcp_tests.rs"
+
+[[test]]
+name = "full_workflow_tests"
+path = "tests/e2e/full_workflow_tests.rs"
+
 # Platform-specific dependencies to handle threading differences
 [target.'cfg(not(windows))'.dependencies]
 tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros"], default-features = false }

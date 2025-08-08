@@ -3,18 +3,9 @@
 //! MCP server with STDIO and HTTP transport support.
 
 use std::env;
-use std::io::{self, BufRead, Write};
-use tokio::net::TcpListener;
-use tracing::{error, info};
+use tracing::info;
 
-mod config;
-mod error;
-mod mcp;
-mod outline;
-mod tools;
-
-use config::Config;
-use error::Result;
+use outline_mcp_rs::{Config, Result, run_stdio, run_http};
 
 /// Application entry point
 #[cfg(not(windows))]
@@ -62,93 +53,4 @@ fn init_logging() {
         .init();
 }
 
-/// Run server in STDIO mode
-async fn run_stdio(config: Config) -> Result<()> {
-    info!("📡 STDIO MCP server starting...");
-    info!("🔗 Connect using: your-mcp-client");
 
-    let outline_client = outline::Client::new(config.outline_api_key, config.outline_api_url)?;
-
-    let stdin = io::stdin();
-    let mut stdout = io::stdout();
-
-    for line in stdin.lock().lines() {
-        let line = line?;
-        if line.trim().is_empty() {
-            continue;
-        }
-
-        match mcp::handle_request(&line, &outline_client).await {
-            Ok(response) => {
-                writeln!(stdout, "{}", response)?;
-                stdout.flush()?;
-            }
-            Err(e) => {
-                let error_response = mcp::create_error_response(&e);
-                writeln!(stdout, "{}", error_response)?;
-                stdout.flush()?;
-            }
-        }
-    }
-
-    Ok(())
-}
-
-/// Run server in HTTP mode
-async fn run_http(config: Config) -> Result<()> {
-    let addr = format!("{}:{}", config.http_host, config.http_port.as_u16());
-    let listener = TcpListener::bind(&addr).await?;
-
-    info!("🌐 HTTP server started on {}", addr);
-    info!("📡 Available at /mcp for MCP requests");
-
-    let outline_client = outline::Client::new(config.outline_api_key, config.outline_api_url)?;
-
-    loop {
-        match listener.accept().await {
-            Ok((stream, addr)) => {
-                let client = outline_client.clone();
-                tokio::spawn(async move {
-                    if let Err(e) = handle_connection(stream, client).await {
-                        error!("Connection error from {}: {}", addr, e);
-                    }
-                });
-            }
-            Err(e) => error!("Accept error: {}", e),
-        }
-    }
-}
-
-async fn handle_connection(
-    stream: tokio::net::TcpStream,
-    outline_client: outline::Client,
-) -> Result<()> {
-    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-
-    let (reader, mut writer) = stream.into_split();
-    let mut reader = BufReader::new(reader);
-
-    let mut line = String::new();
-    while reader.read_line(&mut line).await? > 0 {
-        if line.trim().is_empty() {
-            line.clear();
-            continue;
-        }
-
-        match mcp::handle_request(&line, &outline_client).await {
-            Ok(response) => {
-                writer.write_all(response.as_bytes()).await?;
-                writer.write_all(b"\n").await?;
-            }
-            Err(e) => {
-                let error_response = mcp::create_error_response(&e);
-                writer.write_all(error_response.as_bytes()).await?;
-                writer.write_all(b"\n").await?;
-            }
-        }
-
-        line.clear();
-    }
-
-    Ok(())
-}

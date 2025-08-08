@@ -144,6 +144,54 @@
               homepage = packageMeta.repository;
             };
           };
+
+          # musl static build
+          musl = pkgs.pkgsStatic.rustPlatform.buildRustPackage {
+            pname = "${packageMeta.name}-musl";
+            version = packageMeta.version;
+            src = ./.;
+            
+            cargoHash = "sha256-qDH+pOC2WUG5i61GkprHNaUXwj7poio7ozrsU1IIrOY=";
+            
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = [ pkgs.pkgsStatic.openssl ];
+            
+            CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
+            OPENSSL_STATIC = "1";
+            OPENSSL_LIB_DIR = "${pkgs.pkgsStatic.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.pkgsStatic.openssl.dev}/include";
+            PKG_CONFIG_ALL_STATIC = "1";
+            
+            meta = with pkgs.lib; {
+              description = "${packageMeta.description} (musl static)";
+              license = licenses.mit;
+              homepage = packageMeta.repository;
+            };
+          };
+
+          # Windows cross-compilation
+          windows = pkgs.pkgsCross.mingwW64.rustPlatform.buildRustPackage {
+            pname = "${packageMeta.name}-windows";
+            version = packageMeta.version;
+            src = ./.;
+            
+            cargoHash = "sha256-qDH+pOC2WUG5i61GkprHNaUXwj7poio7ozrsU1IIrOY=";
+            
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = [ 
+              pkgs.pkgsCross.mingwW64.windows.pthreads
+            ];
+            
+            CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
+            PKG_CONFIG_ALLOW_CROSS = "1";
+            CARGO_TARGET_X86_64_PC_WINDOWS_GNU_RUSTFLAGS = "-L ${pkgs.pkgsCross.mingwW64.windows.pthreads}/lib";
+            
+            meta = with pkgs.lib; {
+              description = "${packageMeta.description} (Windows)";
+              license = licenses.mit;
+              homepage = packageMeta.repository;
+            };
+          };
         };
       }
     );
