@@ -1,0 +1,214 @@
+name: Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  release:
+    types: [published]
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build-releases:
+    name: Build Release Binaries  
+    strategy:
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            name: linux-x86_64
+            nix-package: default
+            binary: outline-mcp
+            os: ubuntu-latest
+          - target: x86_64-unknown-linux-musl
+            name: linux-x86_64-musl
+            nix-package: musl
+            binary: outline-mcp
+            os: ubuntu-latest
+          - target: x86_64-pc-windows-gnu
+            name: windows-x86_64
+            nix-package: windows
+            binary: outline-mcp.exe
+            os: ubuntu-latest
+          - target: x86_64-apple-darwin
+            name: macos-x86_64
+            nix-package: macos-x86_64
+            binary: outline-mcp
+            os: macos-13  # Intel runner
+          - target: aarch64-apple-darwin
+            name: macos-arm64
+            nix-package: macos-arm64
+            binary: outline-mcp
+            os: macos-14  # ARM runner
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v15
+        with:
+          name: nix-community
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+        continue-on-error: true  # Не блокируем сборку если кеш недоступен
+
+      - name: Build binary
+        run: |
+          echo "Building for target: ${{ matrix.target }}"
+          if [ "${{ matrix.nix-package }}" = "default" ]; then
+            nix build
+          else
+            nix build .#${{ matrix.nix-package }}
+          fi
+
+      - name: Sign Windows binary (if certificate available)
+        if: matrix.target == 'x86_64-pc-windows-gnu' && runner.os == 'Linux'
+        shell: bash
+        run: |
+          # Будущая поддержка Windows signing через osslsigncode
+          # Требует сертификат в secrets: WINDOWS_CERTIFICATE, WINDOWS_CERTIFICATE_PASSWORD
+          if [ ! -z "${{ secrets.WINDOWS_CERTIFICATE }}" ]; then
+            echo "Windows signing certificate detected, but signing is not implemented yet"
+            echo "To enable: install osslsigncode and configure certificate secrets"
+            # sudo apt-get install osslsigncode
+            # echo "${{ secrets.WINDOWS_CERTIFICATE }}" | base64 -d > cert.p12
+            # osslsigncode sign -pkcs12 cert.p12 -pass "${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}" \
+            #   -n "Outline MCP Server" -i "https://github.com/nizovtsevnv/outline-mcp-rs" \
+            #   -in result/bin/outline-mcp.exe -out result/bin/outline-mcp-signed.exe
+            # mv result/bin/outline-mcp-signed.exe result/bin/outline-mcp.exe
+          fi
+
+      - name: Prepare artifacts
+        run: |
+          # Create architecture-specific folder structure
+          mkdir -p artifacts/${{ matrix.name }}
+          
+          # Copy binary with simple name
+          if [ "${{ matrix.target }}" = "x86_64-pc-windows-gnu" ]; then
+            cp result/bin/outline-mcp.exe artifacts/${{ matrix.name }}/outline-mcp.exe
+          else
+            cp result/bin/outline-mcp artifacts/${{ matrix.name }}/outline-mcp
+            chmod +x artifacts/${{ matrix.name }}/outline-mcp
+          fi
+          
+          # Create checksums
+          cd artifacts/${{ matrix.name }}
+          sha256sum ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
+          
+          # Create info file
+          cat > README.txt << EOF
+          Outline MCP Server - ${{ matrix.name }}
+          =====================================
+          
+          Target: ${{ matrix.target }}
+          Binary: ${{ matrix.binary }}
+          
+          Usage:
+            ./outline-mcp --help
+          
+          Environment variables:
+            OUTLINE_API_KEY     - Your Outline API key (required)
+            OUTLINE_API_URL     - Outline instance URL (optional)
+            HTTP_HOST          - HTTP server host (default: 127.0.0.1)
+            HTTP_PORT          - HTTP server port (default: 3000)
+          
+          More info: https://github.com/nizovtsevnv/outline-mcp-rs
+          EOF
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: outline-mcp-${{ matrix.name }}
+          path: artifacts/
+          retention-days: 30
+
+  create-release:
+    name: Create GitHub Release
+    needs: build-releases
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Prepare release files
+        run: |
+          mkdir -p release
+          
+          # Create tar.gz archives for each platform
+          cd release-artifacts
+          for platform_dir in */; do
+            platform=$(basename "$platform_dir")
+            echo "Creating archive for $platform..."
+            
+            cd "$platform_dir"
+            if [[ "$platform" == *"windows"* ]]; then
+              # Create ZIP for Windows
+              zip -r "../../release/outline-mcp-${platform}.zip" .
+            else
+              # Create tar.gz for Unix-like systems
+              tar -czf "../../release/outline-mcp-${platform}.tar.gz" .
+            fi
+            cd ..
+          done
+          
+          cd ../release
+          ls -la
+
+      - name: Extract release info
+        id: release_info
+        run: |
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/v}
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          
+          # Generate release notes
+          echo "## 🚀 Release $VERSION" > RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### 📦 Downloads" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "Each archive contains the \`outline-mcp\` binary (or \`outline-mcp.exe\` for Windows) with checksums and usage instructions." >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "| Platform | Archive | Binary Inside |" >> RELEASE_NOTES.md
+          echo "|----------|---------|---------------|" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 | [outline-mcp-linux-x86_64.tar.gz](./outline-mcp-linux-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 (musl static) | [outline-mcp-linux-x86_64-musl.tar.gz](./outline-mcp-linux-x86_64-musl.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Windows x86_64 | [outline-mcp-windows-x86_64.zip](./outline-mcp-windows-x86_64.zip) | \`outline-mcp.exe\` |" >> RELEASE_NOTES.md
+          echo "| macOS x86_64 (Intel) | [outline-mcp-macos-x86_64.tar.gz](./outline-mcp-macos-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| macOS ARM64 (Apple Silicon) | [outline-mcp-macos-arm64.tar.gz](./outline-mcp-macos-arm64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "" >> RELEASE_NOTES.md
+          echo "### ✨ Features" >> RELEASE_NOTES.md
+          echo "- 🔗 MCP server for Outline knowledge base" >> RELEASE_NOTES.md
+          echo "- 📡 STDIO and HTTP transport support" >> RELEASE_NOTES.md
+          echo "- 🛠️ Complete document, collection, and user management" >> RELEASE_NOTES.md
+          echo "- 🐧 Static musl build for maximum portability" >> RELEASE_NOTES.md
+          echo "- 🪟 Windows cross-compilation support" >> RELEASE_NOTES.md
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          body_path: RELEASE_NOTES.md
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ steps.release_info.outputs.version }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

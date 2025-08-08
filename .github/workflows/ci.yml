@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  check:
+    name: Check & Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v15
+        with:
+          name: nix-community
+
+      - name: Check code formatting
+        run: nix develop -c cargo fmt --all --check
+
+      - name: Run clippy
+        run: nix develop -c cargo clippy --all-targets --all-features -- -D warnings
+
+      - name: Run tests
+        run: nix develop -c cargo test --verbose
+
+      - name: Security audit
+        run: nix develop -c cargo audit
+
+      - name: License check
+        run: nix develop -c cargo deny check
+
+  build-test:
+    name: Build Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          nix_path: nixpkgs=channel:nixos-unstable
+
+      - name: Setup Nix cache
+        uses: cachix/cachix-action@v15
+        with:
+          name: nix-community
+
+      - name: Test native build
+        run: nix build
+
+      - name: Test musl build
+        run: nix build .#musl
+
+      - name: Test Windows build
+        run: nix build .#windows
+
+      - name: Verify binaries
+        run: |
+          echo "✅ Native Linux build:"
+          nix build
+          file result/bin/outline-mcp
+          echo ""
+          
+          echo "✅ musl static build:"
+          nix build .#musl
+          file result/bin/outline-mcp
+          echo ""
+          
+          echo "✅ Windows build:"
+          nix build .#windows
+          file result/bin/outline-mcp.exe
+          echo ""
+          
+          echo "ℹ️  macOS builds will be tested in release workflow on macOS runners"

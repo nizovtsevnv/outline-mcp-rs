@@ -85,6 +85,54 @@ Complete coverage of Outline API functionality:
 - **Outline Client**: HTTP API wrapper
 - **Tools Registry**: Dynamic tool discovery and execution
 
+## 📥 Installation
+
+### Download Pre-built Binaries
+
+Download the latest release from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases):
+
+- **Linux x86_64**: `outline-mcp-linux-x86_64.tar.gz` (contains `outline-mcp`)
+- **Linux x86_64 (musl)**: `outline-mcp-linux-x86_64-musl.tar.gz` (static, portable)
+- **Windows x86_64**: `outline-mcp-windows-x86_64.zip` (contains `outline-mcp.exe`)
+- **macOS Intel**: `outline-mcp-macos-x86_64.tar.gz` (contains `outline-mcp`)
+- **macOS Apple Silicon**: `outline-mcp-macos-arm64.tar.gz` (contains `outline-mcp`)
+
+Each archive includes the binary, SHA256 checksums, and usage instructions.
+
+### Build from Source
+
+See [Nix Configuration](#-optimized-nix-configuration) section below.
+
+#### Quick Build Commands:
+```bash
+# Linux/Unix systems
+nix build                # Linux native
+nix build .#musl         # Linux static (portable)
+nix build .#windows      # Windows cross-compile
+
+# macOS systems (requires Nix on macOS)  
+nix build                # Auto-detects Intel/ARM
+nix build .#macos-x86_64 # Intel target
+nix build .#macos-arm64  # ARM target
+```
+
+#### macOS Development Setup:
+```bash
+# Install Nix on macOS
+curl --proto '=https' --tlsv1.2 -sSf -L https://install.determinate.systems/nix | sh -s -- install
+
+# Enable flakes
+echo "experimental-features = nix-command flakes" >> ~/.config/nix/nix.conf
+
+# Clone and build
+git clone https://github.com/nizovtsevnv/outline-mcp-rs
+cd outline-mcp-rs
+nix build
+```
+
+📖 **For detailed macOS development instructions, see [docs/MACOS.md](docs/MACOS.md)**  
+🔐 **For Windows code signing setup, see [docs/WINDOWS_SIGNING.md](docs/WINDOWS_SIGNING.md)**
+
 ## 🧪 Testing
 
 ```bash
@@ -133,16 +181,23 @@ Our `flake.nix` has been carefully optimized to eliminate duplication and improv
 nix develop              # Native development with tools
 nix develop .#musl       # musl static build environment  
 nix develop .#windows    # Windows cross-compilation
+nix develop .#macos      # macOS development (Darwin only)
 
 # Package building
-nix build                # Native Linux build
+nix build                # Native build (Linux/macOS auto-detect)
 nix build .#musl         # Static musl build (portable Linux)
 nix build .#windows      # Windows cross-compilation
+nix build .#macos-x86_64 # macOS Intel (requires macOS or CI)
+nix build .#macos-arm64  # macOS Apple Silicon (requires macOS or CI)
 
 # Alternative: Use dev environment for building
-nix develop -c cargo build --release
-nix develop .#musl -c cargo build --target x86_64-unknown-linux-musl --release  
-nix develop .#windows -c cargo build --target x86_64-pc-windows-gnu --release
+nix develop -c cargo build --release                              # Native
+nix develop .#musl -c cargo build --target x86_64-unknown-linux-musl --release    # musl
+nix develop .#windows -c cargo build --target x86_64-pc-windows-gnu --release     # Windows
+
+# macOS targets (macOS only)
+nix develop -c cargo build --target x86_64-apple-darwin --release   # Intel Mac
+nix develop -c cargo build --target aarch64-apple-darwin --release  # Apple Silicon
 ```
 
 ### 🔧 Configuration

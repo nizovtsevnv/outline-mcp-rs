@@ -124,6 +124,22 @@
               echo "📚 Pthread lib: ${pkgs.pkgsCross.mingwW64.windows.pthreads}/lib"
             '';
           };
+
+          # macOS development environment (only on Darwin systems)
+          macos = mkDevShell {
+            name = "macOS Development";
+            extraBuildInputs = with pkgs; lib.optionals stdenv.isDarwin [
+              darwin.apple_sdk.frameworks.Security
+              darwin.apple_sdk.frameworks.CoreFoundation
+              darwin.apple_sdk.frameworks.SystemConfiguration
+            ];
+            extraShellHook = ''
+              echo "🚀 Native: cargo build --release"
+              echo "🚀 Intel: cargo build --target x86_64-apple-darwin --release"
+              echo "🚀 ARM64: cargo build --target aarch64-apple-darwin --release"
+              echo "🍎 Frameworks: Security, CoreFoundation, SystemConfiguration"
+            '';
+          };
         };
 
         # Package definition using Cargo.toml metadata
@@ -188,6 +204,56 @@
             
             meta = with pkgs.lib; {
               description = "${packageMeta.description} (Windows)";
+              license = licenses.mit;
+              homepage = packageMeta.repository;
+            };
+          };
+
+          # macOS x86_64 cross-compilation  
+          macos-x86_64 = pkgs.pkgsCross.x86_64-darwin.rustPlatform.buildRustPackage {
+            pname = "${packageMeta.name}-macos-x86_64";
+            version = packageMeta.version;
+            src = ./.;
+            
+            cargoHash = "sha256-qDH+pOC2WUG5i61GkprHNaUXwj7poio7ozrsU1IIrOY=";
+            
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
+              darwin.apple_sdk.frameworks.Security
+              darwin.apple_sdk.frameworks.CoreFoundation
+              darwin.apple_sdk.frameworks.SystemConfiguration
+            ];
+            
+            CARGO_BUILD_TARGET = "x86_64-apple-darwin";
+            PKG_CONFIG_ALLOW_CROSS = "1";
+            
+            meta = with pkgs.lib; {
+              description = "${packageMeta.description} (macOS x86_64)";
+              license = licenses.mit;
+              homepage = packageMeta.repository;
+            };
+          };
+
+          # macOS ARM64 (Apple Silicon) cross-compilation
+          macos-arm64 = pkgs.pkgsCross.aarch64-darwin.rustPlatform.buildRustPackage {
+            pname = "${packageMeta.name}-macos-arm64";
+            version = packageMeta.version;
+            src = ./.;
+            
+            cargoHash = "sha256-qDH+pOC2WUG5i61GkprHNaUXwj7poio7ozrsU1IIrOY=";
+            
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = with pkgs.pkgsCross.aarch64-darwin; [
+              darwin.apple_sdk.frameworks.Security
+              darwin.apple_sdk.frameworks.CoreFoundation  
+              darwin.apple_sdk.frameworks.SystemConfiguration
+            ];
+            
+            CARGO_BUILD_TARGET = "aarch64-apple-darwin";
+            PKG_CONFIG_ALLOW_CROSS = "1";
+            
+            meta = with pkgs.lib; {
+              description = "${packageMeta.description} (macOS ARM64)";
               license = licenses.mit;
               homepage = packageMeta.repository;
             };
