@@ -1,0 +1,27 @@
+# Build artifacts
+/target/
+
+# Environment files
+.env
+.env.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Nix
+result
+result-*
+
+# Logs
+*.log
+
+# Temporary files
+*~
+.#*

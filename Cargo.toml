@@ -1,0 +1,68 @@
+[package]
+name = "outline-mcp-rs"
+version = "0.1.0"
+edition = "2021"  # Fixed: using stable edition 2021
+authors = ["Nick Nizovtsev"]
+description = "MCP server for Outline knowledge base"
+license = "MIT"
+repository = "https://github.com/nizovtsevnv/outline-mcp-rs"
+keywords = ["outline", "mcp", "model-context-protocol"]
+categories = ["api-bindings", "command-line-utilities"]
+readme = "README.md"
+rust-version = "1.75"  # Real minimum version for edition 2021
+
+# Single binary file (combined stdio and http)
+[[bin]]
+name = "outline-mcp"
+path = "src/main.rs"
+
+# Platform-specific dependencies to handle threading differences
+[target.'cfg(not(windows))'.dependencies]
+tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros"], default-features = false }
+
+[target.'cfg(windows)'.dependencies]
+# Windows: exclude rt-multi-thread to avoid pthread linking issues
+tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros"], default-features = false }
+
+[dependencies]
+# Runtime (minimal tokio for async - platform specific config at bottom)
+tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros"], default-features = false }
+
+# HTTP client with TLS support
+reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+
+# JSON processing
+serde_json = "1.0"
+url = "2.0"
+
+# Logging and monitoring (minimal)
+tracing = { version = "0.1", default-features = false }
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"], default-features = false }
+
+# Environment variables (.env files)
+dotenvy = "0.15"
+
+# Error handling
+thiserror = "1.0"
+
+# Build optimizations for release
+[profile.release]
+lto = "fat"           # Link Time Optimization for size
+codegen-units = 1     # Maximum optimization  
+panic = "abort"       # Fast termination
+strip = "symbols"     # Remove debug symbols
+opt-level = "z"       # Optimize for size
+
+# Development profile with faster compilation
+[profile.dev]
+opt-level = 0         # No optimization for fast compilation
+debug = true          # Debug info for development
+lto = false          # No LTO for development
+
+# Cargo features
+[features]
+default = []
+
+# Conditional compilation for different targets
+[target.'cfg(target_env = "musl")'.dependencies]
+# Additional dependencies for musl builds if needed 
