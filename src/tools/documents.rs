@@ -3,9 +3,14 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
+use super::common::{
+    get_optional_number_arg, get_optional_string_arg, get_string_arg, tool_definition,
+};
 use crate::error::Result;
-use crate::outline::{create_document_request, search_documents_request, update_document_request, Client as OutlineClient};
-use super::common::{tool_definition, get_string_arg, get_optional_string_arg, get_optional_number_arg};
+use crate::outline::{
+    create_document_request, search_documents_request, update_document_request,
+    Client as OutlineClient,
+};
 
 /// Get all document tool definitions
 pub fn get_document_tools() -> Vec<Value> {
@@ -87,7 +92,11 @@ pub fn get_document_tools() -> Vec<Value> {
 }
 
 /// Call document tool
-pub async fn call_document_tool(name: &str, arguments: Value, client: &OutlineClient) -> Result<Value> {
+pub async fn call_document_tool(
+    name: &str,
+    arguments: Value,
+    client: &OutlineClient,
+) -> Result<Value> {
     match name {
         "create_document" => create_document(arguments, client).await,
         "get_document" => get_document(arguments, client).await,
@@ -192,7 +201,8 @@ async fn search_documents(args: Value, client: &OutlineClient) -> Result<Value> 
 
 async fn ask_documents(args: Value, client: &OutlineClient) -> Result<Value> {
     let query = get_string_arg(&args, "query")?;
-    let document_ids = args.get("document_ids")
+    let document_ids = args
+        .get("document_ids")
         .and_then(|v| v.as_array())
         .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>());
 
@@ -249,10 +259,12 @@ async fn create_template_from_document(args: Value, client: &OutlineClient) -> R
         "id": id,
         "name": name
     });
-    let response = client.post("documents.create_template", request_body).await?;
+    let response = client
+        .post("documents.create_template", request_body)
+        .await?;
 
     Ok(json!({
         "success": true,
         "template": response
     }))
-} 
+}

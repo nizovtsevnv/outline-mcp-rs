@@ -5,9 +5,9 @@ use serde_json::{json, Value};
 
 /// Create test configuration
 pub fn create_test_config() -> Config {
-    use outline_mcp_rs::config::{ApiKey, Port, LogLevel};
+    use outline_mcp_rs::config::{ApiKey, LogLevel, Port};
     use std::net::IpAddr;
-    
+
     Config {
         outline_api_key: ApiKey::new("test_api_key".to_string()).unwrap(),
         outline_api_url: "https://test.example.com".parse().unwrap(),
@@ -25,7 +25,7 @@ pub fn create_mcp_request(method: &str, params: Option<Value>) -> String {
         "method": method,
         "params": params.unwrap_or(json!({}))
     });
-    
+
     serde_json::to_string(&request).unwrap()
 }
 
@@ -47,10 +47,7 @@ pub fn extract_result(response: &Value) -> Option<&Value> {
     response.get("result")
 }
 
-/// Extract error from MCP response  
-pub fn extract_error(response: &Value) -> Option<&Value> {
-    response.get("error")
-}
+
 
 #[cfg(test)]
 mod tests {
@@ -67,7 +64,7 @@ mod tests {
     fn test_create_mcp_request() {
         let request = create_mcp_request("test_method", Some(json!({"key": "value"})));
         let parsed: Value = serde_json::from_str(&request).unwrap();
-        
+
         assert_eq!(parsed["method"], "test_method");
         assert_eq!(parsed["params"]["key"], "value");
     }
@@ -76,8 +73,8 @@ mod tests {
     fn test_parse_mcp_response() {
         let response_str = r#"{"jsonrpc":"2.0","id":1,"result":{"success":true}}"#;
         let response = parse_mcp_response(response_str).unwrap();
-        
+
         assert!(is_success_response(&response));
         assert_eq!(extract_result(&response).unwrap()["success"], true);
     }
-} 
+}

@@ -3,9 +3,9 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
+use super::common::{get_string_arg, tool_definition};
 use crate::error::Result;
 use crate::outline::{create_comment_request, Client as OutlineClient};
-use super::common::{tool_definition, get_string_arg};
 
 /// Get all comment tool definitions
 pub fn get_comment_tools() -> Vec<Value> {
@@ -35,7 +35,11 @@ pub fn get_comment_tools() -> Vec<Value> {
 }
 
 /// Call comment tool
-pub async fn call_comment_tool(name: &str, arguments: Value, client: &OutlineClient) -> Result<Value> {
+pub async fn call_comment_tool(
+    name: &str,
+    arguments: Value,
+    client: &OutlineClient,
+) -> Result<Value> {
     match name {
         "create_comment" => create_comment(arguments, client).await,
         "update_comment" => update_comment(arguments, client).await,
@@ -89,4 +93,4 @@ async fn delete_comment(args: Value, client: &OutlineClient) -> Result<Value> {
         "success": true,
         "result": response
     }))
-} 
+}

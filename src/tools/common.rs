@@ -1,7 +1,7 @@
 //! Common utilities for tool implementations
 
-use serde_json::{json, Value};
 use crate::error::{Error, Result};
+use serde_json::{json, Value};
 
 /// Create tool definition JSON
 pub fn tool_definition(name: &str, description: &str, params: &[(&str, &str, &str)]) -> Value {
@@ -84,12 +84,12 @@ mod tests {
     fn test_tool_definition() {
         let tool = tool_definition(
             "test_tool",
-            "Test description", 
-            &[("param1", "string", "First parameter")]
+            "Test description",
+            &[("param1", "string", "First parameter")],
         );
-        
+
         assert_eq!(tool["name"], "test_tool");
         assert_eq!(tool["description"], "Test description");
         assert!(tool["inputSchema"]["properties"]["param1"].is_object());
     }
-} 
+}

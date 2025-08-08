@@ -5,7 +5,7 @@
 use std::env;
 use tracing::info;
 
-use outline_mcp_rs::{Config, Result, run_stdio, run_http};
+use outline_mcp_rs::{run_http, run_stdio, Config, Result};
 
 /// Application entry point
 #[cfg(not(windows))]
@@ -52,5 +52,3 @@ fn init_logging() {
         .with(filter)
         .init();
 }
-
-

@@ -3,9 +3,11 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
+use super::common::{
+    get_optional_number_arg, get_optional_string_arg, get_string_arg, tool_definition,
+};
 use crate::error::Result;
 use crate::outline::{create_collection_request, Client as OutlineClient};
-use super::common::{tool_definition, get_string_arg, get_optional_string_arg, get_optional_number_arg};
 
 /// Get all collection tool definitions
 pub fn get_collection_tools() -> Vec<Value> {
@@ -41,7 +43,11 @@ pub fn get_collection_tools() -> Vec<Value> {
 }
 
 /// Call collection tool
-pub async fn call_collection_tool(name: &str, arguments: Value, client: &OutlineClient) -> Result<Value> {
+pub async fn call_collection_tool(
+    name: &str,
+    arguments: Value,
+    client: &OutlineClient,
+) -> Result<Value> {
     match name {
         "create_collection" => create_collection(arguments, client).await,
         "get_collection" => get_collection(arguments, client).await,
@@ -112,4 +118,4 @@ async fn list_collections(args: Value, client: &OutlineClient) -> Result<Value> 
 
     let response = client.post("collections.list", request_body).await?;
     Ok(response)
-} 
+}
