@@ -18,7 +18,7 @@ JSON configuration for Cursor IDE, Gemini CLI:
 {
   "mcpServers": {
     "Outline knowledge base": {
-      "command": "outline-mcp",
+      "command": "full-location-of-outline-mcp-executable-file",
       "env": {
         "OUTLINE_API_KEY": "your-api-key-here",
         "OUTLINE_API_URL": "https://app.getoutline.com/api"
@@ -27,6 +27,20 @@ JSON configuration for Cursor IDE, Gemini CLI:
   }
 }
 ```
+
+**⚠️ Important Path Requirements:**
+- **No spaces** in the executable file path (use underscores or hyphens instead)
+- **ASCII characters only** - avoid non-Latin characters in paths
+- **Windows users**: Use double backslashes `\\` in paths (e.g., `"C:\\tools\\outline-mcp.exe"`)
+
+**✅ Good examples:**
+- Linux/macOS: `"/usr/local/bin/outline-mcp"` or `"./outline-mcp"`
+- Windows: `"C:\\tools\\outline-mcp.exe"` or `".\\outline-mcp.exe"`
+
+**❌ Avoid:**
+- `"/path with spaces/outline-mcp"` 
+- `"/путь/outline-mcp"` (non-Latin characters)
+- `"C:\tools\outline-mcp.exe"` (single backslash on Windows)
 
 ## 🛠️ Supported Tools
 
