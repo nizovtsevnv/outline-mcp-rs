@@ -236,7 +236,9 @@ jobs:
               # Create ZIP for Windows (flat structure)
               zip -r "../../release/${platform}.zip" *
             else
-              # Create tar.gz for Unix-like systems (flat structure)
+              # Ensure executable permissions are set before archiving
+              chmod +x outline-mcp 2>/dev/null || true
+              # Create tar.gz for Unix-like systems (flat structure, preserve permissions)
               tar -czf "../../release/${platform}.tar.gz" *
             fi
             cd ..

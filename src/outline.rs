@@ -25,7 +25,7 @@ impl Client {
     /// Create new Outline API client
     pub fn new(api_key: ApiKey, base_url: Url) -> Result<Self> {
         let http_client = HttpClient::builder()
-            .user_agent("outline-mcp-rust/0.1.0")
+            .user_agent("outline-mcp-rust/1.0.0")
             .timeout(std::time::Duration::from_secs(30))
             .build()?;
 

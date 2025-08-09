@@ -11,6 +11,16 @@ MCP (Model Context Protocol) server for Outline API interaction with focus on **
 ### 2. Download & Install
 Download pre-built binary from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) or build from source.
 
+**📦 After extracting:**
+- **Linux/macOS**: If needed, make executable: `chmod +x outline-mcp`
+- **Windows**: No additional steps required
+
+**🛡️ Windows Security Notice:**
+Since the release is not code-signed, Windows Defender may block execution. You'll need to:
+1. Allow the executable through Windows Defender/antivirus
+2. Add the folder to Windows Defender exclusions, or
+3. Right-click the file → Properties → "Unblock" if downloaded from internet
+
 ### 3. Configure your AI agent
 
 JSON configuration for Cursor IDE, Gemini CLI:
@@ -29,16 +39,18 @@ JSON configuration for Cursor IDE, Gemini CLI:
 ```
 
 **⚠️ Important Path Requirements:**
+- **Use absolute paths** - relative paths may not work correctly
 - **No spaces** in the executable file path (use underscores or hyphens instead)
 - **ASCII characters only** - avoid non-Latin characters in paths
 - **Windows users**: Use double backslashes `\\` in paths (e.g., `"C:\\tools\\outline-mcp.exe"`)
 
 **✅ Good examples:**
-- Linux/macOS: `"/usr/local/bin/outline-mcp"` or `"./outline-mcp"`
-- Windows: `"C:\\tools\\outline-mcp.exe"` or `".\\outline-mcp.exe"`
+- Linux/macOS: `"/usr/local/bin/outline-mcp"` or `"/home/user/bin/outline-mcp"`
+- Windows: `"C:\\tools\\outline-mcp.exe"` or `"C:\\Users\\YourName\\bin\\outline-mcp.exe"`
 
 **❌ Avoid:**
-- `"/path with spaces/outline-mcp"` 
+- `"./outline-mcp"` (relative path)
+- `"/path with spaces/outline-mcp"` (spaces in path)
 - `"/путь/outline-mcp"` (non-Latin characters)
 - `"C:\tools\outline-mcp.exe"` (single backslash on Windows)
 
