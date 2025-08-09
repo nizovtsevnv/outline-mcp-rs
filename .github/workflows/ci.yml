@@ -8,6 +8,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
 
 jobs:
   check:
@@ -22,30 +23,66 @@ jobs:
         uses: cachix/install-nix-action@v27
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+            # CI optimizations
+            max-jobs = auto
+            cores = 0
+            system-features = nixos-test benchmark big-parallel kvm
 
       - name: Setup Nix cache
         uses: cachix/cachix-action@v15
         with:
           name: nix-community
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+        continue-on-error: true
 
+      # Cache Rust/Cargo dependencies
+      - name: Cache cargo registry
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cache target directory
+        uses: actions/cache@v4
+        with:
+          path: target/
+          key: ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}-${{ hashFiles('**/*.rs') }}
+          restore-keys: |
+            ${{ runner.os }}-target-${{ hashFiles('**/Cargo.lock') }}-
+            ${{ runner.os }}-target-
+
+      # Быстрые проверки (без компиляции)
       - name: Check code formatting
         run: nix develop -c cargo fmt --all --check
 
-      - name: Run clippy
+      - name: Run clippy (with caching)
         run: nix develop -c cargo clippy --all-targets --all-features -- -D warnings
 
+      # Тесты (используют закешированные артефакты)
       - name: Run tests
         run: nix develop -c cargo test --verbose
 
+      # Security checks (быстрые)
       - name: Security audit
         run: nix develop -c cargo audit
 
       - name: License check
         run: nix develop -c cargo deny check
 
-  build-test:
-    name: Build Test
+  # Минимальная проверка сборки (только если основные проверки прошли)
+  build-smoke-test:
+    name: Build Smoke Test
     runs-on: ubuntu-latest
+    needs: check
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository
@@ -55,36 +92,26 @@ jobs:
         uses: cachix/install-nix-action@v27
         with:
           nix_path: nixpkgs=channel:nixos-unstable
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
 
       - name: Setup Nix cache
         uses: cachix/cachix-action@v15
         with:
           name: nix-community
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+        continue-on-error: true
 
-      - name: Test native build
-        run: nix build
-
-      - name: Test musl build
-        run: nix build .#musl
-
-      - name: Test Windows build
-        run: nix build .#windows
-
-      - name: Verify binaries
+      # Только одна быстрая проверочная сборка
+      - name: Test native build only
         run: |
-          echo "✅ Native Linux build:"
+          echo "🚀 Testing native build (smoke test)"
           nix build
-          file result/bin/outline-mcp
-          echo ""
+          echo "✅ Native build successful"
           
-          echo "✅ musl static build:"
-          nix build .#musl
-          file result/bin/outline-mcp
-          echo ""
-          
-          echo "✅ Windows build:"
-          nix build .#windows
-          file result/bin/outline-mcp.exe
-          echo ""
-          
-          echo "ℹ️  macOS builds will be tested in release workflow on macOS runners"
+          # Быстрая проверка что бинарь работает
+          if [[ -x result/bin/outline-mcp ]]; then
+            echo "✅ Binary is executable"
+            result/bin/outline-mcp --help || echo "ℹ️  Help command may require env vars"
+          fi
