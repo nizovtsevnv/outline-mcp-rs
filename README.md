@@ -13,10 +13,7 @@ Download pre-built binary from [GitHub Releases](https://github.com/nizovtsevnv/
 
 **📦 After extracting:**
 - **Linux/macOS**: If needed, make executable: `chmod +x outline-mcp`
-- **Windows**: No additional steps required
-
-**🛡️ Windows Security Notice:**
-Since the release is not code-signed, Windows Defender may block execution. You'll need to:
+- **Windows** Since the release is not code-signed, 🛡️ Windows Defender may block execution. You'll need to:
 1. Allow the executable through Windows Defender/antivirus
 2. Add the folder to Windows Defender exclusions, or
 3. Right-click the file → Properties → "Unblock" if downloaded from internet
