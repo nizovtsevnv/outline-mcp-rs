@@ -102,9 +102,16 @@ jobs:
             chmod +x artifacts/${{ matrix.name }}/outline-mcp
           fi
           
-          # Create checksums
+          # Create checksums (cross-platform)
           cd artifacts/${{ matrix.name }}
-          sha256sum ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
+          if command -v sha256sum >/dev/null 2>&1; then
+            sha256sum ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
+          elif command -v shasum >/dev/null 2>&1; then
+            shasum -a 256 ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
+          else
+            echo "No SHA256 utility found" >&2
+            exit 1
+          fi
           
           # Create info file
           cat > README.txt << EOF
