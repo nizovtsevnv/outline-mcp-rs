@@ -263,11 +263,11 @@ jobs:
           echo "" >> RELEASE_NOTES.md
           echo "| Platform | Archive | Binary Inside |" >> RELEASE_NOTES.md
           echo "|----------|---------|---------------|" >> RELEASE_NOTES.md
-          echo "| Linux x86_64 | [outline-mcp-linux-x86_64.tar.gz](./outline-mcp-linux-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| Linux x86_64 (musl static) | [outline-mcp-linux-x86_64-musl.tar.gz](./outline-mcp-linux-x86_64-musl.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| Windows x86_64 | [outline-mcp-windows-x86_64.zip](./outline-mcp-windows-x86_64.zip) | \`outline-mcp.exe\` |" >> RELEASE_NOTES.md
-          echo "| macOS x86_64 (Intel) | [outline-mcp-macos-x86_64.tar.gz](./outline-mcp-macos-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| macOS ARM64 (Apple Silicon) | [outline-mcp-macos-arm64.tar.gz](./outline-mcp-macos-arm64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 | [outline-mcp-linux-x86_64.tar.gz](outline-mcp-linux-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 (musl static) | [outline-mcp-linux-x86_64-musl.tar.gz](outline-mcp-linux-x86_64-musl.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Windows x86_64 | [outline-mcp-windows-x86_64.zip](outline-mcp-windows-x86_64.zip) | \`outline-mcp.exe\` |" >> RELEASE_NOTES.md
+          echo "| macOS x86_64 (Intel) | [outline-mcp-macos-x86_64.tar.gz](outline-mcp-macos-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| macOS ARM64 (Apple Silicon) | [outline-mcp-macos-arm64.tar.gz](outline-mcp-macos-arm64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
           echo "### ✨ Features" >> RELEASE_NOTES.md
           echo "- 🔗 MCP server for Outline knowledge base" >> RELEASE_NOTES.md
