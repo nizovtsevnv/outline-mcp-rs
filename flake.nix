@@ -153,7 +153,12 @@
             cargoHash = "sha256-qDH+pOC2WUG5i61GkprHNaUXwj7poio7ozrsU1IIrOY=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = [ pkgs.openssl ];
+            buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+              # Native macOS frameworks (only when building on Darwin)
+              pkgs.darwin.apple_sdk.frameworks.Security
+              pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+            ];
             meta = with pkgs.lib; {
               description = packageMeta.description;
               license = licenses.mit;

@@ -42,12 +42,12 @@ jobs:
             os: ubuntu-latest
           - target: x86_64-apple-darwin
             name: macos-x86_64
-            nix-package: macos-x86_64
+            nix-package: default  # Use native build on Intel runner
             binary: outline-mcp
             os: macos-13  # Intel runner
           - target: aarch64-apple-darwin
             name: macos-arm64
-            nix-package: macos-arm64
+            nix-package: default  # Use native build on ARM runner  
             binary: outline-mcp
             os: macos-14  # ARM runner
     runs-on: ${{ matrix.os }}
@@ -75,6 +75,34 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
         continue-on-error: true
 
+      - name: Setup additional caches (macOS)
+        if: contains(matrix.os, 'macos')
+        run: |
+          # Additional caches for better Darwin/macOS support
+          echo "extra-substituters = https://cuda-maintainers.cachix.org https://nixpkgs-update.cachix.org" >> ~/.config/nix/nix.conf
+          echo "extra-trusted-public-keys = cuda-maintainers.cachix.org-1:0dq3bujKpuEPiCgBV6oLvPQP4Q5qLu4YZnhQHUFSjlg= nixpkgs-update.cachix.org-1:P6GfVQwHyOr7iZMg2ELdDJnA5ELFWgp2zyWKj9gv8R4=" >> ~/.config/nix/nix.conf
+          
+          # Optimize for faster builds on macOS
+          echo "max-jobs = 2" >> ~/.config/nix/nix.conf
+          echo "cores = 2" >> ~/.config/nix/nix.conf
+          echo "build-cores = 2" >> ~/.config/nix/nix.conf
+          echo "narinfo-cache-negative-ttl = 0" >> ~/.config/nix/nix.conf
+          echo "connect-timeout = 10" >> ~/.config/nix/nix.conf
+          echo "stalled-download-timeout = 30" >> ~/.config/nix/nix.conf
+
+      # Cache Nix store for macOS builds (aggressive caching)
+      - name: Cache Nix store (macOS only)
+        if: contains(matrix.os, 'macos')
+        uses: actions/cache@v4
+        with:
+          path: |
+            /nix/store
+            ~/.cache/nix
+          key: nix-store-${{ matrix.target }}-${{ hashFiles('flake.lock', 'Cargo.lock') }}
+          restore-keys: |
+            nix-store-${{ matrix.target }}-
+            nix-store-
+            
       # Cache Rust dependencies for release builds
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -100,8 +128,12 @@ jobs:
       - name: Build binary
         run: |
           echo "Building for target: ${{ matrix.target }}"
-          if [ "${{ matrix.nix-package }}" = "default" ]; then
-            nix build
+          if [[ "${{ matrix.os }}" == macos* ]]; then
+            # macOS native build with limited parallelism to reduce build time
+            echo "Using native macOS build with optimizations..."
+            nix build . --cores 2 --max-jobs 2 --option build-cores 2
+          elif [ "${{ matrix.nix-package }}" = "default" ]; then
+            nix build .
           else
             nix build .#${{ matrix.nix-package }}
           fi
