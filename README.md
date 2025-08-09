@@ -2,26 +2,6 @@
 
 MCP (Model Context Protocol) server for Outline API interaction with focus on **simplicity**, **performance**, and **reliability**.
 
-## 🎯 Project Principles
-
-### ⚡ Performance
-- **Static builds** with musl - single file without dependencies
-- **< 5MB binary** with full functionality
-- **< 10ms startup time** to ready state
-- **< 10MB memory** usage
-
-### 🛡️ Reliability
-- **Zero dependencies** at runtime (static linking)
-- **Explicit error handling** - no panics in production
-- **Type safety** - leveraging Rust's ownership system
-- **Comprehensive testing** - unit and integration tests
-
-### 🔧 Simplicity
-- **Minimal code** - only essential functionality
-- **Clear architecture** - easy to understand and modify
-- **Single binary** - simple deployment
-- **Environment configuration** - no config files
-
 ## 🚀 Quick Start
 
 ### 1. Get Your Outline API Key
@@ -31,26 +11,22 @@ MCP (Model Context Protocol) server for Outline API interaction with focus on **
 ### 2. Download & Install
 Download pre-built binary from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) or build from source.
 
-### 3. Configure Cursor IDE
-Add to your `mcp.json` configuration:
+### 3. Configure your AI agent
+
+JSON configuration for Cursor IDE, Gemini CLI:
 ```json
 {
   "mcpServers": {
     "Outline knowledge base": {
       "command": "outline-mcp",
       "env": {
-        "OUTLINE_API_KEY": "your-api-key-here"
+        "OUTLINE_API_KEY": "your-api-key-here",
+        "OUTLINE_API_URL": "https://app.getoutline.com/api"
       }
     }
   }
 }
 ```
-
-## 📋 Requirements
-
-### Development Requirements
-- **Nix** (recommended) - handles all dependencies automatically
-- **OR manually**: Rust 1.75+, OpenSSL development libraries
 
 ## 🛠️ Supported Tools
 
@@ -82,6 +58,30 @@ Complete coverage of Outline API functionality:
 - `create_template_from_document` - Create reusable templates
 - `list_users` - User management
 
+## 🎯 Project Principles
+
+### ⚡ Performance
+- **Static builds** with musl - single file without dependencies
+- **< 5MB binary** with full functionality
+- **< 10ms startup time** to ready state
+- **< 10MB memory** usage
+
+### 🛡️ Reliability
+- **Zero dependencies** at runtime (static linking)
+- **Explicit error handling** - no panics in production
+- **Type safety** - leveraging Rust's ownership system
+- **Comprehensive testing** - unit and integration tests
+
+### 🔧 Simplicity
+- **Minimal code** - only essential functionality
+- **Clear architecture** - easy to understand and modify
+- **Single binary** - simple deployment
+- **Environment configuration** - no config files
+
+## 📋 Development Requirements
+- **Nix** (recommended) - handles all dependencies automatically
+- **OR manually**: Rust 1.75+, OpenSSL development libraries
+
 ## 🏗️ Architecture
 
 ```
@@ -96,24 +96,6 @@ Complete coverage of Outline API functionality:
 - **MCP Protocol**: JSON-RPC 2.0 implementation
 - **Outline Client**: HTTP API wrapper
 - **Tools Registry**: Dynamic tool discovery and execution
-
-## 📥 Installation
-
-### Download Pre-built Binaries
-
-Download the latest release from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases):
-
-- **Linux x86_64**: `outline-mcp-linux-x86_64.tar.gz` (contains `outline-mcp`)
-- **Linux x86_64 (musl)**: `outline-mcp-linux-x86_64-musl.tar.gz` (static, portable)
-- **Windows x86_64**: `outline-mcp-windows-x86_64.zip` (contains `outline-mcp.exe`)
-- **macOS Intel**: `outline-mcp-macos-x86_64.tar.gz` (contains `outline-mcp`)
-- **macOS Apple Silicon**: `outline-mcp-macos-arm64.tar.gz` (contains `outline-mcp`)
-
-Each archive includes the binary, SHA256 checksums, and usage instructions.
-
-### Build from Source
-
-See [Nix Configuration](#-optimized-nix-configuration) section below.
 
 #### Quick Build Commands:
 ```bash
@@ -211,8 +193,6 @@ nix develop .#windows -c cargo build --target x86_64-pc-windows-gnu --release   
 nix develop -c cargo build --target x86_64-apple-darwin --release   # Intel Mac
 nix develop -c cargo build --target aarch64-apple-darwin --release  # Apple Silicon
 ```
-
-### 🔧 Configuration
 
 ## 🤝 Contributing
 
