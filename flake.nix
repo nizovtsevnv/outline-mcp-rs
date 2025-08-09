@@ -29,7 +29,7 @@
             license = "MIT";
             repository = "https://github.com/nizovtsevnv/outline-mcp-rs";
             binaryName = "outline-mcp";
-          };
+        };
 
         # Rust toolchain with cross-compilation targets
         rustToolchain = pkgs.rust-bin.stable.latest.default.override {

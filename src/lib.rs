@@ -38,6 +38,7 @@ pub use config::Config;
 pub use error::{Error, Result};
 
 // Modules
+pub mod cli;
 pub mod config;
 pub mod error;
 mod mcp;

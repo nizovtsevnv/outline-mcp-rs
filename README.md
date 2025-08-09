@@ -24,14 +24,26 @@ MCP (Model Context Protocol) server for Outline API interaction with focus on **
 
 ## 🚀 Quick Start
 
-### Static Build (musl)
-```bash
-nix develop .#musl -с сargo build --target x86_64-unknown-linux-musl --release
-```
+### 1. Get Your Outline API Key
+- **Outline.com**: https://app.outline.com/settings/api-and-apps
+- **Self-hosted**: https://your-instance.com/settings/api-and-apps
 
-### Static build (windows)
-```bash
-nix develop .#windows -с cargo build --target x86_64-pc-windows-gnu --release
+### 2. Download & Install
+Download pre-built binary from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) or build from source.
+
+### 3. Configure Cursor IDE
+Add to your `mcp.json` configuration:
+```json
+{
+  "mcpServers": {
+    "Outline knowledge base": {
+      "command": "outline-mcp",
+      "env": {
+        "OUTLINE_API_KEY": "your-api-key-here"
+      }
+    }
+  }
+}
 ```
 
 ## 📋 Requirements

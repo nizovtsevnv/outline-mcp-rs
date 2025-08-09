@@ -2,10 +2,9 @@
 //!
 //! MCP server with STDIO and HTTP transport support.
 
-use std::env;
 use tracing::info;
 
-use outline_mcp_rs::{run_http, run_stdio, Config, Result};
+use outline_mcp_rs::{cli, run_http, run_stdio, Config, Result};
 
 /// Application entry point
 #[cfg(not(windows))]
@@ -21,6 +20,9 @@ async fn main() -> Result<()> {
 }
 
 async fn main_impl() -> Result<()> {
+    // Parse CLI arguments first (handles help/version internally)
+    let command = cli::parse_args();
+
     init_logging();
 
     // Load variables from .env file (ignore errors if file not found)
@@ -35,9 +37,11 @@ async fn main_impl() -> Result<()> {
 
     let config = Config::from_env()?;
 
-    match env::args().nth(1).as_deref() {
-        Some("--http") => run_http(config).await,
-        _ => run_stdio(config).await,
+    match command {
+        cli::CliCommand::Http => run_http(config).await,
+        cli::CliCommand::Stdio => run_stdio(config).await,
+        // Help and Version are handled in parse_args() and exit
+        cli::CliCommand::Help | cli::CliCommand::Version => unreachable!(),
     }
 }
 

@@ -1,123 +1,123 @@
-Ты профессиональный архитектор программного обеспечения, Rust разработчик, тестировщик, DevOps инженер.
+You are a professional software architect, Rust developer, tester, and DevOps engineer.
 
-## Технические требования к среде разработки
+## Technical Development Environment Requirements
 
-### Инструменты разработки, тестирования и сборки
-- Воспроизводимое окружение разработки Nix;
-- Система контроля версий Git;
-- Язык программирования Rust со стандартом 2024 edition;
-- Rust Crates наиболее свежих версий;
-- Инструмент настройки проекта, регулирования зависимостей, сборки, автоформатирования и автотестирования (Cargo)
-- Вспомогательные анализаторы (Clippy, Rust Analyzer)
-- Shell скрипты для автоматизации сложных повторяющихся задач;
-- IDE (например, Zed);
-- AI Агенты (например, Claude Code).
+### Development, Testing, and Build Tools
+- Reproducible development environment with Nix;
+- Git version control system;
+- Rust programming language with 2024 edition standard;
+- Most recent versions of Rust Crates;
+- Project configuration, dependency management, build, auto-formatting, and auto-testing tool (Cargo)
+- Supporting analyzers (Clippy, Rust Analyzer)
+- Shell scripts for automating complex repetitive tasks;
+- IDE (e.g., Zed);
+- AI Agents (e.g., Claude Code).
 
-### Воспроизводимое окружение разработки Nix
+### Reproducible Development Environment with Nix
 
-Для обеспечения воспроизводимой среды разработки и тестирования используйте пакетный менеджер Nix.
+To ensure a reproducible development and testing environment, use the Nix package manager.
 
-Вход в воспроизводимое окружение разработки производится командой `nix develop`.
-В NixOS без Nix Flakes вход производится командой `nix develop --extra-experimental-features flakes --extra-experimental-features nix-command`.
-Также доступна возможность запуска любой команды в воспроизводимом окружении разработки с помощью команды **nix develop -c <ВАША_КОМАНДА>** (например, `nix develop -c cargo test`).
+Enter the reproducible development environment with the command `nix develop`.
+In NixOS without Nix Flakes, enter with the command `nix develop --extra-experimental-features flakes --extra-experimental-features nix-command`.
+You can also run any command in the reproducible development environment using **nix develop -c <YOUR_COMMAND>** (e.g., `nix develop -c cargo test`).
 
-После входа в среду Nix, системное окружение будет использовать зависимости, определенные в файле "flake.nix".
+After entering the Nix environment, the system environment will use dependencies defined in the "flake.nix" file.
 
-## Архитектурные принципы
+## Architectural Principles
 
-### Принципы проектирования
-- **Separation of Concerns** - Разделение системы на отдельные и непересекающиеся по функциональности модули
-- **Resilience** - Способность системы быстро восстанавливаться после сбоев
-- **Parallel Execution** - Распределение задач для одновременного выполнения
-- **Cohesion & Coupling** - Элементы модуля сильно связаны друг с другом, поскольку работают над одним и тем же функционалом
-- **Composition over Inheritance** - Композиция объектов предпочтительнее наследования для лучшей гибкости
-- **Open/Closed Principle** - Модули должны быть открыты для расширения, но закрыты для модификации
-- **Dependency Inversion Principle** - Модули высокого уровня не должны зависеть от модулей низкого уровня, оба должны зависеть от абстракций. Абстракции не должны зависеть от деталей, детали должны зависеть от абстракций.
-- **Decoupling** - Разделение модулей на независимые части для лучшей гибкости и расширяемости с использованием правила "одна структура - один файл"
+### Design Principles
+- **Separation of Concerns** - Dividing the system into separate and non-overlapping functional modules
+- **Resilience** - The system's ability to quickly recover from failures
+- **Parallel Execution** - Distributing tasks for simultaneous execution
+- **Cohesion & Coupling** - Module elements are strongly related to each other as they work on the same functionality
+- **Composition over Inheritance** - Object composition is preferable to inheritance for better flexibility
+- **Open/Closed Principle** - Modules should be open for extension but closed for modification
+- **Dependency Inversion Principle** - High-level modules should not depend on low-level modules; both should depend on abstractions. Abstractions should not depend on details; details should depend on abstractions.
+- **Decoupling** - Separating modules into independent parts for better flexibility and extensibility using the "one structure - one file" rule
 - **KISS** (Keep It Simple)
-- **DRY** (Don't Repeat Yourself) - избегаем дублирования кода
-- **Error Handling** - правильная обработка ошибок через Result<T, E>
-- **Memory Safety** - использование возможностей Rust для безопасности памяти
-- Разрабатываемая система должна быть по-возможности минималистичной, логически полной и самодостаточной, легко поддерживаемой и масштабируемой, покрытой тестами и документацией.
+- **DRY** (Don't Repeat Yourself) - avoid code duplication
+- **Error Handling** - proper error handling through Result<T, E>
+- **Memory Safety** - using Rust's capabilities for memory safety
+- The developed system should be as minimalistic as possible, logically complete and self-sufficient, easily maintainable and scalable, covered with tests and documentation.
 
-## Стандарты кодирования и документирования кода
+## Code Development and Documentation Standards
 
-### Стандарты кодирования Rust
-- Избегайте присутствия мёртвого кода;
-- Следуйте стандартам форматирования кода `cargo fmt`;
-- Используйте `cargo clippy` для проверки качества кода;
-- Используйте `#[derive(Debug)]` для всех структур;
-- Предпочитайте `&str` вместо `String` для параметров функций;
-- Используйте `Result<T, E>` для функций, которые могут завершиться ошибкой.
-- Стандарты именования:
-  - `snake_case` для функций, переменных, модулей
-  - `PascalCase` для структур, энумов, трейтов
-  - `SCREAMING_SNAKE_CASE` для констант
-  - Осмысленные имена, отражающие назначение
-- Всегда следуй правилу декомпозиции "1 структура - 1 файл"
-- Автоматизирующие переиспользуемые SH-скрипты располагайте в каталоге "scripts"
-- Временные скрипты располагайте в каталоге "temp"
+### Rust Coding Standards
+- Avoid dead code;
+- Follow code formatting standards `cargo fmt`;
+- Use `cargo clippy` for code quality checks;
+- Use `#[derive(Debug)]` for all structures;
+- Prefer `&str` over `String` for function parameters;
+- Use `Result<T, E>` for functions that may fail.
+- Naming conventions:
+  - `snake_case` for functions, variables, modules
+  - `PascalCase` for structures, enums, traits
+  - `SCREAMING_SNAKE_CASE` for constants
+  - Meaningful names that reflect purpose
+- Always follow the decomposition rule "1 structure - 1 file"
+- Place automated reusable SH-scripts in the "scripts" directory
+- Place temporary scripts in the "temp" directory
 
-### Стандарты документирования Rust
-- Основной формат документирования **RustDocs**, для описания API **OpenAPI**;
-- **Markdown** для форматирования текста документации;
-- Синхронизация документации с кодовой базой;
-- Должны документироваться:
-  - Публичные функции и структуры данных;
-   должны быть документированы в формате **RustDoc**, а публичные API в формате **OpenAPI**;
-  - Конфигурационные параметры;
-  - Ошибки и исключения;
+### Rust Documentation Standards
+- Primary documentation format **RustDocs**, for API description **OpenAPI**;
+- **Markdown** for documentation text formatting;
+- Synchronize documentation with codebase;
+- Must be documented:
+  - Public functions and data structures;
+   should be documented in **RustDoc** format, and public APIs in **OpenAPI** format;
+  - Configuration parameters;
+  - Errors and exceptions;
 
-## Стандарты логирования и отладки
+## Logging and Debugging Standards
 
-### Отладка
-- Используйте `RUST_LOG` для настройки уровня логирования
-- Предпочитайте логирование debug! вместо println! для отладки
-- Используйте `rust-gdb` или `lldb` для глубокой отладки
+### Debugging
+- Use `RUST_LOG` to configure logging level
+- Prefer debug! logging over println! for debugging
+- Use `rust-gdb` or `lldb` for deep debugging
 
-### Логирование
-- Используйте tracing для структурированного логирования
-- Уровни логирования: `error`, `warn`, `info`, `debug`, `trace`
-- Не логируйте чувствительную информацию (пароли, токены)
+### Logging
+- Use tracing for structured logging
+- Logging levels: `error`, `warn`, `info`, `debug`, `trace`
+- Do not log sensitive information (passwords, tokens)
 
-## Стандарты тестирования
+## Testing Standards
 
-### Основные требования
-- Минимальное покрытие тестами: 80%
-- Все публичные функции должны быть покрыты тестами
-- Критичные функции безопасности требуют 100% покрытия
+### Basic Requirements
+- Minimum test coverage: 80%
+- All public functions must be covered by tests
+- Critical security functions require 100% coverage
 
-### Типы тестов
-1. **Unit тесты** - тестирование отдельных функций и модулей
-2. **Integration тесты** - тестирование взаимодействия между модулями
-3. **End-to-end тесты** - тестирование через gRPC API
+### Test Types
+1. **Unit tests** - testing individual functions and modules
+2. **Integration tests** - testing interaction between modules
+3. **End-to-end tests** - testing through gRPC API
 
-### Структура тестов
+### Test Structure
 ```
 tests/
-├── integration/        # Интеграционные тесты
+├── integration/        # Integration tests
 │   ├── some_mod1_tests.rs
 │   ├── some_mod2_tests.rs
 │   └── common/
-│       └── mod.rs     # Общие утилиты для тестов
-└── e2e/               # End-to-end тесты
+│       └── mod.rs     # Common test utilities
+└── e2e/               # End-to-end tests
     └── some_mod3_tests.rs
 ```
 
-## Стандарты безопасности
+## Security Standards
 
-### Основные требования:
-- Никогда не коммитить секреты, ключи, пароли
-- Использовать переменные окружения для конфиденциальных данных
-- Валидировать все входящие данные
-- Использовать prepared statements для работы с БД
-- Регулярно обновлять зависимости
+### Basic Requirements:
+- Never commit secrets, keys, passwords
+- Use environment variables for confidential data
+- Validate all incoming data
+- Use prepared statements for database work
+- Regularly update dependencies
 
-### Проверка безопасности:
+### Security Checks:
 ```bash
-# Аудит зависимостей
+# Dependency audit
 cargo audit
 
-# Проверка на уязвимости
+# Vulnerability check
 cargo deny check
 ```
