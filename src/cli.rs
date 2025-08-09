@@ -80,7 +80,11 @@ mod tests {
     #[test]
     fn test_version_constant() {
         // Version should be non-empty and contain dots (semver format)
-        assert!(!VERSION.is_empty());
+        // Allow const_is_empty since VERSION is a compile-time constant from env!()
+        #[allow(clippy::const_is_empty)]
+        {
+            assert!(!VERSION.is_empty());
+        }
         assert!(VERSION.contains('.'));
     }
 
