@@ -4,12 +4,20 @@ on:
   push:
     tags:
       - 'v*.*.*'
+      - 'v*.*.*-*'
+      - '*.*.*'
+      - '*.*.*-*'
   release:
     types: [published]
   workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
+
+permissions:
+  contents: write
+  packages: write
+  pull-requests: read
 
 jobs:
   build-releases:
@@ -208,9 +216,11 @@ jobs:
       - name: Extract release info
         id: release_info
         run: |
-          # Extract version from tag
-          VERSION=${GITHUB_REF#refs/tags/v}
+          # Extract version from tag (remove refs/tags/ and optional v prefix)
+          TAG_NAME=${GITHUB_REF#refs/tags/}
+          VERSION=${TAG_NAME#v}
           echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag_name=$TAG_NAME" >> $GITHUB_OUTPUT
           
           # Generate release notes
           echo "## 🚀 Release $VERSION" > RELEASE_NOTES.md
@@ -239,9 +249,8 @@ jobs:
         with:
           files: release/*
           body_path: RELEASE_NOTES.md
-          tag_name: ${{ github.ref_name }}
+          tag_name: ${{ steps.release_info.outputs.tag_name }}
           name: Release ${{ steps.release_info.outputs.version }}
           draft: false
           prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
