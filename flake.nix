@@ -154,10 +154,10 @@
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-              # Native macOS frameworks (only when building on Darwin)
-              pkgs.darwin.apple_sdk.frameworks.Security
-              pkgs.darwin.apple_sdk.frameworks.CoreFoundation
-              pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
+              # Use newer Darwin frameworks to avoid deprecation warnings
+              pkgs.darwin.apple_sdk_14_2.frameworks.Security
+              pkgs.darwin.apple_sdk_14_2.frameworks.CoreFoundation  
+              pkgs.darwin.apple_sdk_14_2.frameworks.SystemConfiguration
             ];
             meta = with pkgs.lib; {
               description = packageMeta.description;

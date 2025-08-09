@@ -79,16 +79,19 @@ jobs:
         if: contains(matrix.os, 'macos')
         run: |
           # Additional caches for better Darwin/macOS support
-          echo "extra-substituters = https://cuda-maintainers.cachix.org https://nixpkgs-update.cachix.org" >> ~/.config/nix/nix.conf
-          echo "extra-trusted-public-keys = cuda-maintainers.cachix.org-1:0dq3bujKpuEPiCgBV6oLvPQP4Q5qLu4YZnhQHUFSjlg= nixpkgs-update.cachix.org-1:P6GfVQwHyOr7iZMg2ELdDJnA5ELFWgp2zyWKj9gv8R4=" >> ~/.config/nix/nix.conf
+          echo "extra-substituters = https://cuda-maintainers.cachix.org https://nixpkgs-update.cachix.org https://cache.iog.io" >> ~/.config/nix/nix.conf
+          echo "extra-trusted-public-keys = cuda-maintainers.cachix.org-1:0dq3bujKpuEPiCgBV6oLvPQP4Q5qLu4YZnhQHUFSjlg= nixpkgs-update.cachix.org-1:P6GfVQwHyOr7iZMg2ELdDJnA5ELFWgp2zyWKj9gv8R4= hydra.iohk.io:f/Ea+s+dFdN+3Y/G+FDgSq+a5NEWhJGzdjvKNGv0/EQ=" >> ~/.config/nix/nix.conf
           
-          # Optimize for faster builds on macOS
-          echo "max-jobs = 2" >> ~/.config/nix/nix.conf
-          echo "cores = 2" >> ~/.config/nix/nix.conf
-          echo "build-cores = 2" >> ~/.config/nix/nix.conf
+          # Aggressive optimizations for faster builds on macOS
+          echo "max-jobs = 4" >> ~/.config/nix/nix.conf
+          echo "cores = 0" >> ~/.config/nix/nix.conf
+          echo "build-cores = 4" >> ~/.config/nix/nix.conf
           echo "narinfo-cache-negative-ttl = 0" >> ~/.config/nix/nix.conf
-          echo "connect-timeout = 10" >> ~/.config/nix/nix.conf
-          echo "stalled-download-timeout = 30" >> ~/.config/nix/nix.conf
+          echo "connect-timeout = 5" >> ~/.config/nix/nix.conf
+          echo "stalled-download-timeout = 5" >> ~/.config/nix/nix.conf
+          echo "keep-outputs = true" >> ~/.config/nix/nix.conf
+          echo "keep-derivations = true" >> ~/.config/nix/nix.conf
+          echo "builders-use-substitutes = true" >> ~/.config/nix/nix.conf
 
       # Cache Nix store for macOS builds (aggressive caching)
       - name: Cache Nix store (macOS only)
@@ -125,13 +128,21 @@ jobs:
             ${{ runner.os }}-${{ matrix.target }}-target-
             ${{ runner.os }}-target-  # Не блокируем сборку если кеш недоступен
 
+      # Pre-fetch dependencies for macOS to improve cache efficiency
+      - name: Pre-fetch dependencies (macOS only)
+        if: contains(matrix.os, 'macos')
+        run: |
+          echo "Pre-fetching dependencies to improve build performance..."
+          # This downloads dependencies without building, allowing better caching
+          nix develop --command echo "Development environment ready"
+          
       - name: Build binary
         run: |
           echo "Building for target: ${{ matrix.target }}"
           if [[ "${{ matrix.os }}" == macos* ]]; then
-            # macOS native build with limited parallelism to reduce build time
+            # macOS native build with optimizations
             echo "Using native macOS build with optimizations..."
-            nix build . --cores 2 --max-jobs 2 --option build-cores 2
+            nix build . --cores 0 --max-jobs 4 --option build-cores 4
           elif [ "${{ matrix.nix-package }}" = "default" ]; then
             nix build .
           else
@@ -265,11 +276,11 @@ jobs:
           echo "" >> RELEASE_NOTES.md
           echo "| Platform | Archive | Binary Inside |" >> RELEASE_NOTES.md
           echo "|----------|---------|---------------|" >> RELEASE_NOTES.md
-          echo "| Linux x86_64 | [outline-mcp-linux-x86_64.tar.gz](outline-mcp-linux-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| Linux x86_64 (musl static) | [outline-mcp-linux-x86_64-musl.tar.gz](outline-mcp-linux-x86_64-musl.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| Windows x86_64 | [outline-mcp-windows-x86_64.zip](outline-mcp-windows-x86_64.zip) | \`outline-mcp.exe\` |" >> RELEASE_NOTES.md
-          echo "| macOS x86_64 (Intel) | [outline-mcp-macos-x86_64.tar.gz](outline-mcp-macos-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
-          echo "| macOS ARM64 (Apple Silicon) | [outline-mcp-macos-arm64.tar.gz](outline-mcp-macos-arm64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 | [outline-mcp-linux-x86_64.tar.gz](https://github.com/nizovtsevnv/outline-mcp-rs/releases/download/$TAG_NAME/outline-mcp-linux-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Linux x86_64 (musl static) | [outline-mcp-linux-x86_64-musl.tar.gz](https://github.com/nizovtsevnv/outline-mcp-rs/releases/download/$TAG_NAME/outline-mcp-linux-x86_64-musl.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| Windows x86_64 | [outline-mcp-windows-x86_64.zip](https://github.com/nizovtsevnv/outline-mcp-rs/releases/download/$TAG_NAME/outline-mcp-windows-x86_64.zip) | \`outline-mcp.exe\` |" >> RELEASE_NOTES.md
+          echo "| macOS x86_64 (Intel) | [outline-mcp-macos-x86_64.tar.gz](https://github.com/nizovtsevnv/outline-mcp-rs/releases/download/$TAG_NAME/outline-mcp-macos-x86_64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
+          echo "| macOS ARM64 (Apple Silicon) | [outline-mcp-macos-arm64.tar.gz](https://github.com/nizovtsevnv/outline-mcp-rs/releases/download/$TAG_NAME/outline-mcp-macos-arm64.tar.gz) | \`outline-mcp\` |" >> RELEASE_NOTES.md
           echo "" >> RELEASE_NOTES.md
           echo "### ✨ Features" >> RELEASE_NOTES.md
           echo "- 🔗 MCP server for Outline knowledge base" >> RELEASE_NOTES.md
