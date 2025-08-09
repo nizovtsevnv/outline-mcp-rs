@@ -157,19 +157,19 @@ jobs:
 
       - name: Prepare artifacts
         run: |
-          # Create architecture-specific folder structure
-          mkdir -p artifacts/${{ matrix.name }}
+          # Create flat artifact structure (no platform subfolders)
+          mkdir -p artifacts
           
           # Copy binary with simple name
           if [ "${{ matrix.target }}" = "x86_64-pc-windows-gnu" ]; then
-            cp result/bin/outline-mcp.exe artifacts/${{ matrix.name }}/outline-mcp.exe
+            cp result/bin/outline-mcp.exe artifacts/outline-mcp.exe
           else
-            cp result/bin/outline-mcp artifacts/${{ matrix.name }}/outline-mcp
-            chmod +x artifacts/${{ matrix.name }}/outline-mcp
+            cp result/bin/outline-mcp artifacts/outline-mcp
+            chmod +x artifacts/outline-mcp
           fi
           
           # Create checksums (cross-platform)
-          cd artifacts/${{ matrix.name }}
+          cd artifacts
           if command -v sha256sum >/dev/null 2>&1; then
             sha256sum ${{ matrix.binary }} > ${{ matrix.binary }}.sha256
           elif command -v shasum >/dev/null 2>&1; then
@@ -225,19 +225,19 @@ jobs:
         run: |
           mkdir -p release
           
-          # Create tar.gz archives for each platform
+          # Create archives directly from artifact contents (flat structure)
           cd release-artifacts
-          for platform_dir in */; do
-            platform=$(basename "$platform_dir")
+          for artifact_dir in outline-mcp-*/; do
+            platform=$(basename "$artifact_dir")
             echo "Creating archive for $platform..."
             
-            cd "$platform_dir"
+            cd "$artifact_dir"
             if [[ "$platform" == *"windows"* ]]; then
-              # Create ZIP for Windows
-              zip -r "../../release/outline-mcp-${platform}.zip" .
+              # Create ZIP for Windows (flat structure)
+              zip -r "../../release/${platform}.zip" *
             else
-              # Create tar.gz for Unix-like systems
-              tar -czf "../../release/outline-mcp-${platform}.tar.gz" .
+              # Create tar.gz for Unix-like systems (flat structure)
+              tar -czf "../../release/${platform}.tar.gz" *
             fi
             cd ..
           done
