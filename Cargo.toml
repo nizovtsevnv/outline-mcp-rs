@@ -2,14 +2,24 @@
 name = "outline-mcp-rs"
 version = "1.0.3"
 edition = "2021"  # Fixed: using stable edition 2021
-authors = ["Nick Nizovtsev"]
-description = "MCP server for Outline knowledge base"
+authors = ["Nick Nizovtsev <nizovtsevnv@gmail.com>"]
+description = "MCP (Model Context Protocol) server for Outline knowledge base with STDIO and HTTP transport support"
 license = "MIT"
 repository = "https://github.com/nizovtsevnv/outline-mcp-rs"
-keywords = ["outline", "mcp", "model-context-protocol"]
-categories = ["api-bindings", "command-line-utilities"]
+homepage = "https://github.com/nizovtsevnv/outline-mcp-rs"
+documentation = "https://github.com/nizovtsevnv/outline-mcp-rs/blob/main/docs/HELP.md"
+keywords = ["outline", "mcp", "model-context-protocol", "knowledge-base", "api"]
+categories = ["api-bindings", "command-line-utilities", "web-programming"]
 readme = "README.md"
 rust-version = "1.75"  # Real minimum version for edition 2021
+exclude = [
+    "test_*.sh",
+    "target/",
+    ".github/",
+    "scripts/",
+    "tests/",
+    "deny.toml"
+]
 
 # Single binary file (combined stdio and http)
 [[bin]]

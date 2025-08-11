@@ -15,14 +15,37 @@ MCP (Model Context Protocol) server for Outline API interaction with focus on **
 - **Self-hosted**: https://your-instance.com/settings/api-and-apps
 
 ### 2. Download & Install
-Download pre-built binary from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) or build from source.
 
-**📦 After extracting:**
+Choose one of the installation methods:
+
+#### 📦 Option 1: Install from crates.io (Recommended)
+```bash
+cargo install outline-mcp-rs
+```
+*Requires Rust toolchain. The binary will be installed to `~/.cargo/bin/outline-mcp`*
+
+#### 🔄 Option 2: Download pre-built binary
+Download from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases)
+
+**After extracting:**
 - **Linux/macOS**: If needed, make executable: `chmod +x outline-mcp`
-- **Windows** Since the release is not code-signed, 🛡️ Windows Defender may block execution. You'll need to:
-1. Allow the executable through Windows Defender/antivirus
-2. Add the folder to Windows Defender exclusions, or
-3. Right-click the file → Properties → "Unblock" if downloaded from internet
+- **Windows**: Since the release is not code-signed, 🛡️ Windows Defender may block execution. You'll need to:
+  1. Allow the executable through Windows Defender/antivirus
+  2. Add the folder to Windows Defender exclusions, or
+  3. Right-click the file → Properties → "Unblock" if downloaded from internet
+
+#### 🔨 Option 3: Build from source
+```bash
+git clone https://github.com/nizovtsevnv/outline-mcp-rs.git
+cd outline-mcp-rs
+cargo build --release
+# Binary will be in target/release/outline-mcp
+```
+
+#### ❄️ Option 4: Nix (with reproducible environment)
+```bash
+nix run github:nizovtsevnv/outline-mcp-rs
+```
 
 ### 3. Configure your AI agent
 
@@ -31,7 +54,7 @@ JSON configuration for Cursor IDE, Gemini CLI:
 {
   "mcpServers": {
     "Outline knowledge base": {
-      "command": "full-location-of-outline-mcp-executable-file",
+      "command": "outline-mcp",
       "env": {
         "OUTLINE_API_KEY": "your-api-key-here",
         "OUTLINE_API_URL": "https://app.getoutline.com/api"
@@ -40,6 +63,11 @@ JSON configuration for Cursor IDE, Gemini CLI:
   }
 }
 ```
+
+> **💡 Path Notes:**
+> - **cargo install**: Use `"outline-mcp"` (added to PATH automatically)  
+> - **Downloaded binary**: Use full path like `"/path/to/outline-mcp"`
+> - **Built from source**: Use `"/path/to/outline-mcp-rs/target/release/outline-mcp"`
 
 **⚠️ Important Path Requirements:**
 - **Use absolute paths** - relative paths may not work correctly
