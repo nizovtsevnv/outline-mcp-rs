@@ -18,13 +18,7 @@ MCP (Model Context Protocol) server for Outline API interaction with focus on **
 
 Choose one of the installation methods:
 
-#### 📦 Option 1: Install from crates.io (Recommended)
-```bash
-cargo install outline-mcp-rs
-```
-*Requires Rust toolchain. The binary will be installed to `~/.cargo/bin/outline-mcp`*
-
-#### 🔄 Option 2: Download pre-built binary
+#### 🔄 Option 1: Download pre-built binary (Recommended)
 Download from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases)
 
 **After extracting:**
@@ -33,6 +27,12 @@ Download from [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/re
   1. Allow the executable through Windows Defender/antivirus
   2. Add the folder to Windows Defender exclusions, or
   3. Right-click the file → Properties → "Unblock" if downloaded from internet
+
+#### 📦 Option 2: Install from crates.io
+```bash
+cargo install outline-mcp-rs
+```
+*Requires Rust toolchain. The binary will be installed to `~/.cargo/bin/outline-mcp`*
 
 #### 🔨 Option 3: Build from source
 ```bash
