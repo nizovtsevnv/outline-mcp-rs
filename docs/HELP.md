@@ -13,7 +13,9 @@ ENVIRONMENT VARIABLES:
     OUTLINE_API_URL     Outline instance URL (default: https://app.getoutline.com/api)
     HTTP_HOST           HTTP server host (default: 127.0.0.1, HTTP mode only)
     HTTP_PORT           HTTP server port (default: 3000, HTTP mode only)
-    RUST_LOG            Log level: error|warn|info|debug|trace (default: info)
+    RUST_LOG            Log level: error|warn|info|debug|trace
+                        Default: 'error' for STDIO mode, 'info' for HTTP mode
+                        Note: STDIO logs go to stderr to avoid JSON pollution
 
 QUICK SETUP FOR CURSOR IDE:
 
