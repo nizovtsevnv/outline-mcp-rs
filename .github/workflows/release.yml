@@ -136,6 +136,17 @@ jobs:
           # This downloads dependencies without building, allowing better caching
           nix develop --command echo "Development environment ready"
           
+      - name: Update cargo hash if needed
+        run: |
+          echo "🔧 Checking if cargoHash needs update..."
+          if ! nix build 2>/dev/null; then
+            echo "📦 cargoHash needs update, fixing..."
+            chmod +x scripts/update-cargo-hash.sh
+            ./scripts/update-cargo-hash.sh
+          else
+            echo "✅ cargoHash is up to date"
+          fi
+
       - name: Build binary
         run: |
           echo "Building for target: ${{ matrix.target }}"
