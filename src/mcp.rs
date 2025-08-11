@@ -142,7 +142,10 @@ async fn handle_tools_call(params: Value, outline_client: &OutlineClient) -> Res
             code: Some(-32602),
         })?;
 
-    let arguments = params.get("arguments").cloned().unwrap_or(Value::Object(Map::new()));
+    let arguments = params
+        .get("arguments")
+        .cloned()
+        .unwrap_or_else(|| Value::Object(Map::new()));
 
     debug!("🔨 Calling tool: {}", name);
     debug!("📊 Arguments: {}", arguments);

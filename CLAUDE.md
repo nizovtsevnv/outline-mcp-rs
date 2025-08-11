@@ -23,6 +23,49 @@ You can also run any command in the reproducible development environment using *
 
 After entering the Nix environment, the system environment will use dependencies defined in the "flake.nix" file.
 
+## Mandatory Pre-Commit Checks
+
+**CRITICAL**: These checks MUST be run locally before every commit. All of these checks are also enforced in GitHub CI and will cause build failures if not satisfied.
+
+### Required Local Commands (in order):
+```bash
+# 1. Code formatting (must pass)
+cargo fmt
+
+# 2. Linting with no warnings allowed  
+cargo clippy -- -D warnings
+
+# 3. All tests must pass
+cargo test
+
+# 4. Build verification
+cargo build --release
+
+# 5. Nix build verification (if using Nix)
+nix build
+```
+
+### GitHub CI Equivalents:
+The GitHub Actions workflow runs the same checks:
+- **Formatting**: `cargo fmt --check` (fails if code is not formatted)
+- **Linting**: `cargo clippy -- -D warnings` (fails on any clippy warnings)  
+- **Testing**: `cargo test` (fails if any tests fail)
+- **Security**: `cargo audit` and `cargo deny check` (fails on vulnerabilities)
+- **Build**: `cargo build --release` (fails if build errors)
+- **Nix**: `nix build` (fails if Nix build errors)
+
+### Pre-Commit Validation Script:
+```bash
+#!/bin/bash
+set -e
+echo "🔧 Running pre-commit checks..."
+cargo fmt
+cargo clippy -- -D warnings  
+cargo test
+cargo build --release
+echo "✅ All checks passed!"
+```
+
 ## Architectural Principles
 
 ### Design Principles
