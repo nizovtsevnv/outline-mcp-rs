@@ -25,7 +25,11 @@ impl Client {
     /// Create new Outline API client
     pub fn new(api_key: ApiKey, base_url: Url) -> Result<Self> {
         let http_client = HttpClient::builder()
-            .user_agent(&format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")))
+            .user_agent(format!(
+                "{}/{}",
+                env!("CARGO_PKG_NAME"),
+                env!("CARGO_PKG_VERSION")
+            ))
             .timeout(std::time::Duration::from_secs(30))
             .build()?;
 
@@ -45,7 +49,7 @@ impl Client {
         }
         url_string.push_str(endpoint);
         let url = url_string.parse::<url::Url>().map_err(|e| Error::Config {
-            message: format!("Invalid URL: {}", url_string),
+            message: format!("Invalid URL: {url_string}"),
             source: Some(Box::new(e)),
         })?;
 
@@ -76,7 +80,7 @@ impl Client {
         }
         url_string.push_str(endpoint);
         let url = url_string.parse::<url::Url>().map_err(|e| Error::Config {
-            message: format!("Invalid URL: {}", url_string),
+            message: format!("Invalid URL: {url_string}"),
             source: Some(Box::new(e)),
         })?;
 
