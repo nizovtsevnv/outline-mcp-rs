@@ -15,14 +15,37 @@
 - **自托管**: https://your-instance.com/settings/api-and-apps
 
 ### 2. 下载和安装
-从 [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) 下载预构建的二进制文件或从源码构建。
 
-**📦 解压后：**
+选择其中一种安装方法：
+
+#### 🔄 选项 1：下载预构建二进制文件（推荐）
+从 [GitHub Releases](https://github.com/nizovtsevnv/outline-mcp-rs/releases) 下载
+
+**解压后：**
 - **Linux/macOS**: 如需要，设置可执行权限：`chmod +x outline-mcp`
 - **Windows**: 由于发布版本未经代码签名，🛡️ Windows Defender 可能会阻止执行。您需要：
-1. 通过 Windows Defender/防病毒软件允许该可执行文件
-2. 将文件夹添加到 Windows Defender 排除列表，或
-3. 右键单击文件 → 属性 → 如果从互联网下载，点击"解除阻止"
+  1. 通过 Windows Defender/防病毒软件允许该可执行文件
+  2. 将文件夹添加到 Windows Defender 排除列表，或
+  3. 右键单击文件 → 属性 → 如果从互联网下载，点击"解除阻止"
+
+#### 📦 选项 2：从 crates.io 安装
+```bash
+cargo install outline-mcp-rs
+```
+*需要 Rust 工具链。二进制文件将安装到 `~/.cargo/bin/outline-mcp`*
+
+#### 🔨 选项 3：从源码构建
+```bash
+git clone https://github.com/nizovtsevnv/outline-mcp-rs.git
+cd outline-mcp-rs
+cargo build --release
+# 二进制文件位于 target/release/outline-mcp
+```
+
+#### ❄️ 选项 4：Nix（可重现环境）
+```bash
+nix run github:nizovtsevnv/outline-mcp-rs
+```
 
 ### 3. 配置您的 AI 代理
 
@@ -31,15 +54,20 @@ Cursor IDE、Gemini CLI 的 JSON 配置：
 {
   "mcpServers": {
     "Outline knowledge base": {
-      "command": "outline-mcp可执行文件的完整路径",
+      "command": "outline-mcp",
       "env": {
-        "OUTLINE_API_KEY": "您的-api-密钥",
+        "OUTLINE_API_KEY": "您的API密钥",
         "OUTLINE_API_URL": "https://app.getoutline.com/api"
       }
     }
   }
 }
 ```
+
+> **💡 路径说明：**
+> - **cargo install**: 使用 `"outline-mcp"`（自动添加到 PATH）  
+> - **下载的二进制文件**: 使用完整路径如 `"/path/to/outline-mcp"`
+> - **从源码构建**: 使用 `"/path/to/outline-mcp-rs/target/release/outline-mcp"`
 
 **⚠️ 重要路径要求：**
 - **使用绝对路径** - 相对路径可能无法正常工作
