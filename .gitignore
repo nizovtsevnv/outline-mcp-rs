@@ -25,3 +25,6 @@ result-*
 # Temporary files
 *~
 .#*
+
+# Test scripts (local development only)
+test_*.sh
