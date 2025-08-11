@@ -60,16 +60,6 @@ jobs:
             ${{ runner.os }}-target-
 
       # Быстрые проверки (без компиляции)
-      - name: Update cargo hash if needed
-        run: |
-          echo "🔧 Checking if cargoHash needs update..."
-          if ! nix build 2>/dev/null; then
-            echo "📦 cargoHash needs update, fixing..."
-            chmod +x scripts/update-cargo-hash.sh
-            ./scripts/update-cargo-hash.sh
-          else
-            echo "✅ cargoHash is up to date"
-          fi
 
       - name: Check code formatting
         run: nix develop -c cargo fmt --all --check
@@ -113,6 +103,18 @@ jobs:
           name: nix-community
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
         continue-on-error: true
+
+      # Обновление cargoHash если необходимо
+      - name: Update cargo hash if needed
+        run: |
+          echo "🔧 Checking if cargoHash needs update..."
+          if ! nix build 2>/dev/null; then
+            echo "📦 cargoHash needs update, fixing..."
+            chmod +x scripts/update-cargo-hash.sh
+            ./scripts/update-cargo-hash.sh
+          else
+            echo "✅ cargoHash is up to date"
+          fi
 
       # Только одна быстрая проверочная сборка
       - name: Test native build only
