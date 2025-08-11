@@ -190,6 +190,33 @@
             };
           };
 
+          # glibc optimized build (smaller dynamic binary with static OpenSSL)
+          glibc-optimized = pkgs.rustPlatform.buildRustPackage {
+            pname = "${packageMeta.name}-glibc-optimized";
+            version = packageMeta.version;
+            src = ./.;
+            
+            cargoHash = "sha256-DOUi+iSuaxtdyEvGggchF1EZnzTQ9ppDzE/aZO0hmXs=";
+            
+            nativeBuildInputs = [ pkgs.pkg-config ];
+            buildInputs = [ 
+              pkgs.openssl.dev
+              pkgs.openssl.out
+            ];
+            
+            CARGO_BUILD_TARGET = "x86_64-unknown-linux-gnu";
+            OPENSSL_STATIC = "1";
+            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+            PKG_CONFIG_ALL_STATIC = "1";
+            
+            meta = with pkgs.lib; {
+              description = "${packageMeta.description} (glibc optimized - static OpenSSL, dynamic glibc)";
+              license = licenses.mit;
+              homepage = packageMeta.repository;
+            };
+          };
+
           # Windows cross-compilation
           windows = pkgs.pkgsCross.mingwW64.rustPlatform.buildRustPackage {
             pname = "${packageMeta.name}-windows";

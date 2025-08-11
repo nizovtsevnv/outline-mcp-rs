@@ -90,7 +90,7 @@ Complete coverage of Outline API functionality:
 ## 🎯 Project Principles
 
 ### ⚡ Performance
-- **Static builds** with musl - single file without dependencies
+- **Static builds** with musl/glibc - single file without dependencies
 - **< 5MB binary** with full functionality
 - **< 10ms startup time** to ready state
 - **< 10MB memory** usage
@@ -209,6 +209,7 @@ nix develop .#macos      # macOS development (Darwin only)
 # Package building
 nix build                # Native build (Linux/macOS auto-detect)
 nix build .#musl         # Static musl build (portable Linux)
+nix build .#glibc-optimized # Optimized glibc build (static OpenSSL, dynamic glibc)
 nix build .#windows      # Windows cross-compilation
 nix build .#macos-x86_64 # macOS Intel (requires macOS or CI)
 nix build .#macos-arm64  # macOS Apple Silicon (requires macOS or CI)
