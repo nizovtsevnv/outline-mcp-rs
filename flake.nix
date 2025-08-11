@@ -172,7 +172,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.pkgsStatic.openssl ];
@@ -196,7 +196,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -223,7 +223,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -247,7 +247,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
@@ -272,7 +272,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.aarch64-darwin; [
