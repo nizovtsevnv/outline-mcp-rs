@@ -3,7 +3,7 @@
 //! Simple JSON-RPC 2.0 and MCP protocol implementation without complex abstractions.
 
 use serde_json::{json, Map, Value};
-use tracing::{debug, error, info};
+use tracing::{debug, error};
 
 use crate::error::{Error, Result};
 use crate::outline::Client as OutlineClient;
@@ -29,7 +29,7 @@ pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Re
     let params = request_json.get("params").cloned().unwrap_or(Value::Null);
     let id = request_json.get("id").cloned();
 
-    info!("🔧 Processing method: {}", method);
+    debug!("🔧 Processing method: {}", method);
 
     // Dispatch MCP methods
     let result = match method {
@@ -105,7 +105,7 @@ pub fn create_error_response_with_id(id: Option<&Value>, error: &Error) -> Value
 
 /// Handle MCP initialization
 fn handle_initialize(_params: Value) -> Value {
-    info!("🚀 MCP server initialization");
+    debug!("🚀 MCP server initialization");
 
     json!({
         "protocolVersion": "2024-11-05",
@@ -121,7 +121,7 @@ fn handle_initialize(_params: Value) -> Value {
 
 /// Handle tools list request
 fn handle_tools_list(_params: Value) -> Value {
-    info!("📋 Getting tools list");
+    debug!("📋 Getting tools list");
 
     let tools_list = tools::get_tools_list();
 
@@ -138,27 +138,15 @@ async fn handle_tools_call(params: Value, outline_client: &OutlineClient) -> Res
         .and_then(|v| v.as_str())
         .ok_or_else(|| Error::Protocol {
             protocol: "MCP".to_string(),
-            message: "Missing 'name' field in tool call".to_string(),
+            message: "Missing 'name' parameter".to_string(),
             code: Some(-32602),
         })?;
 
-    let arguments = params
-        .get("arguments")
-        .cloned()
-        .unwrap_or_else(|| Value::Object(Map::default()));
+    let arguments = params.get("arguments").cloned().unwrap_or(Value::Object(Map::new()));
 
-    info!("🔨 Calling tool: {}", name);
+    debug!("🔨 Calling tool: {}", name);
     debug!("📊 Arguments: {}", arguments);
 
-    // Call tool
-    let result: Value = tools::call_tool(name, arguments, outline_client).await?;
-
-    Ok(json!({
-        "content": [
-            {
-                "type": "text",
-                "text": serde_json::to_string_pretty(&result)?
-            }
-        ]
-    }))
+    // Call appropriate tool
+    tools::call_tool(name, arguments, outline_client).await
 }

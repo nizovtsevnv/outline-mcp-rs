@@ -1,6 +1,6 @@
 [package]
 name = "outline-mcp-rs"
-version = "1.0.1"
+version = "1.0.2"
 edition = "2021"  # Fixed: using stable edition 2021
 authors = ["Nick Nizovtsev"]
 description = "MCP server for Outline knowledge base"

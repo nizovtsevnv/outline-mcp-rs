@@ -1,9 +1,8 @@
-//! Tools for working with Outline API
+//! Tool definitions and routing
 //!
-//! Modular implementation following "one structure - one file" principle.
+//! Tool registry and dispatcher for MCP protocol
 
 use serde_json::Value;
-use tracing::{debug, info};
 
 use crate::error::{Error, Result};
 use crate::outline::Client as OutlineClient;
@@ -37,9 +36,6 @@ pub fn get_tools_list() -> Vec<Value> {
 
 /// Call tool by name
 pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> Result<Value> {
-    info!("🔨 Calling tool: {}", name);
-    debug!("📊 Arguments: {}", arguments);
-
     match name {
         // Document tools
         "create_document"
@@ -68,9 +64,10 @@ pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> 
         // User tools
         "list_users" => users::call_user_tool(name, arguments, client).await,
 
+        // Unknown tool
         _ => Err(Error::Tool {
             tool_name: name.to_string(),
-            message: "Unknown tool".to_string(),
+            message: format!("Unknown tool: {name}"),
             source: None,
         }),
     }

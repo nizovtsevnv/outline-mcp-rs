@@ -24,7 +24,7 @@
           else {
             # Fallback values if Cargo.toml not available
             name = "outline-mcp-rs";
-            version = "1.0.1";
+            version = "1.0.2";
             description = "MCP server for Outline knowledge base";
             license = "MIT";
             repository = "https://github.com/nizovtsevnv/outline-mcp-rs";

@@ -54,7 +54,7 @@ mod tools;
 /// Returns error on initialization or request processing problems.
 pub async fn run_stdio(config: Config) -> Result<()> {
     use std::io::{self, Write};
-    use tracing::{error, info};
+    use tracing::{debug, error};
 
     let stdin = io::stdin();
     let mut stdout = io::stdout();
@@ -62,7 +62,7 @@ pub async fn run_stdio(config: Config) -> Result<()> {
     // Initialize Outline API client
     let outline_client = outline::Client::new(config.outline_api_key, config.outline_api_url)?;
 
-    info!("✅ STDIO server ready");
+    debug!("✅ STDIO server ready");
 
     // Main STDIO processing loop
     loop {
@@ -109,7 +109,7 @@ pub async fn run_stdio(config: Config) -> Result<()> {
 /// Returns error if there are problems binding to port or HTTP transport.
 pub async fn run_http(config: Config) -> Result<()> {
     use tokio::net::TcpListener;
-    use tracing::{error, info};
+    use tracing::{debug, error, info};
 
     let addr = format!("{}:{}", config.http_host, config.http_port.as_u16());
     let listener = TcpListener::bind(&addr).await?;
@@ -123,7 +123,7 @@ pub async fn run_http(config: Config) -> Result<()> {
     loop {
         match listener.accept().await {
             Ok((stream, addr)) => {
-                info!("🔗 New connection: {}", addr);
+                debug!("🔗 New connection: {}", addr);
                 let client = outline_client.clone();
 
                 tokio::spawn(async move {
