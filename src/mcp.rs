@@ -42,6 +42,12 @@ pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Re
         // Call tool
         "tools/call" => handle_tools_call(params, outline_client).await,
 
+        // Notifications (no response required)
+        "notifications/initialized" => {
+            debug!("🔔 Client initialization notification received");
+            return Ok(String::new()); // Return empty string for notifications
+        }
+
         // Unknown method
         _ => {
             error!("❌ Unknown method: {}", method);
@@ -67,11 +73,21 @@ pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Re
 
 /// Create success response
 pub fn create_success_response(id: Option<&Value>, result: &Value) -> Value {
-    json!({
-        "jsonrpc": "2.0",
-        "result": result,
-        "id": id
-    })
+    id.map_or_else(
+        || {
+            json!({
+                "jsonrpc": "2.0",
+                "result": result
+            })
+        },
+        |id_val| {
+            json!({
+                "jsonrpc": "2.0",
+                "result": result,
+                "id": id_val
+            })
+        },
+    )
 }
 
 /// Create error response
@@ -93,14 +109,27 @@ pub fn create_error_response(error: &Error) -> String {
 
 /// Create error response with ID
 pub fn create_error_response_with_id(id: Option<&Value>, error: &Error) -> Value {
-    json!({
-        "jsonrpc": "2.0",
-        "error": {
-            "code": -32603,
-            "message": error.to_string()
+    id.map_or_else(
+        || {
+            json!({
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": error.to_string()
+                }
+            })
         },
-        "id": id
-    })
+        |id_val| {
+            json!({
+                "jsonrpc": "2.0",
+                "error": {
+                    "code": -32603,
+                    "message": error.to_string()
+                },
+                "id": id_val
+            })
+        },
+    )
 }
 
 /// Handle MCP initialization

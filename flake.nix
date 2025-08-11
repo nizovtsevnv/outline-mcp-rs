@@ -24,7 +24,7 @@
           else {
             # Fallback values if Cargo.toml not available
             name = "outline-mcp-rs";
-            version = "1.0.2";
+            version = "1.0.3";
             description = "MCP server for Outline knowledge base";
             license = "MIT";
             repository = "https://github.com/nizovtsevnv/outline-mcp-rs";
@@ -150,7 +150,7 @@
             src = ./.;
             
             # Use cargoHash instead of lockFile for better compatibility
-            cargoHash = "sha256-eTn57n8O5qmJE73O6MUOp5qvu6UILT8kK9uXkjiez1U=";
+            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
