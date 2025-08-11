@@ -42,4 +42,9 @@ else
     exit 1
 fi
 
-echo "🎉 cargoHash successfully updated!" 
+echo "🎉 cargoHash successfully updated!"
+echo ""
+echo "⚠️  IMPORTANT: Commit and push the changes:"
+echo "   git add flake.nix"
+echo "   git commit -m \"chore: update cargoHash\""
+echo "   git push"

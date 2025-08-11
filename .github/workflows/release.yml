@@ -136,16 +136,15 @@ jobs:
           # This downloads dependencies without building, allowing better caching
           nix develop --command echo "Development environment ready"
           
-      - name: Update cargo hash if needed
+      - name: Verify cargoHash is up to date
         run: |
-          echo "🔧 Checking if cargoHash needs update..."
+          echo "🔍 Verifying cargoHash for release build..."
           if ! nix build 2>/dev/null; then
-            echo "📦 cargoHash needs update, fixing..."
-            chmod +x scripts/update-cargo-hash.sh
-            ./scripts/update-cargo-hash.sh
-          else
-            echo "✅ cargoHash is up to date"
+            echo "❌ Cannot build release: cargoHash is outdated!"
+            echo "Please run ./scripts/update-cargo-hash.sh locally and push changes."
+            exit 1
           fi
+          echo "✅ cargoHash verified for release"
 
       - name: Build binary
         run: |

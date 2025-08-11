@@ -104,23 +104,30 @@ jobs:
           authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
         continue-on-error: true
 
-      # Обновление cargoHash если необходимо
-      - name: Update cargo hash if needed
+      # Проверка актуальности cargoHash и сборка
+      - name: Verify cargoHash and build
         run: |
-          echo "🔧 Checking if cargoHash needs update..."
+          echo "🔍 Verifying cargoHash is up to date..."
           if ! nix build 2>/dev/null; then
-            echo "📦 cargoHash needs update, fixing..."
-            chmod +x scripts/update-cargo-hash.sh
-            ./scripts/update-cargo-hash.sh
-          else
-            echo "✅ cargoHash is up to date"
+            echo "❌ cargoHash in flake.nix is outdated!"
+            echo ""
+            echo "To fix this:"
+            echo "1. Run locally: ./scripts/update-cargo-hash.sh"
+            echo "2. Commit the updated flake.nix"
+            echo "3. Push the changes"
+            echo ""
+            echo "This ensures reproducible builds between local and CI environments."
+            exit 1
           fi
-
-      # Только одна быстрая проверочная сборка
-      - name: Test native build only
-        run: |
-          echo "🚀 Testing native build (smoke test)"
-          nix build
+          
+          echo "✅ cargoHash is up to date"
+          echo "✅ Native build successful"
+          
+          # Быстрая проверка что бинарь работает
+          if [[ -x result/bin/outline-mcp ]]; then
+            echo "✅ Binary is executable"
+            result/bin/outline-mcp --help || echo "ℹ️  Help command may require env vars"
+          fi
           echo "✅ Native build successful"
           
           # Быстрая проверка что бинарь работает
