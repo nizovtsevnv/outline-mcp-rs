@@ -113,8 +113,8 @@ fn handle_initialize(_params: Value) -> Value {
             "tools": {}
         },
         "serverInfo": {
-            "name": "outline-mcp-rust",
-            "version": "1.0.0"
+            "name": env!("CARGO_PKG_NAME"),
+            "version": env!("CARGO_PKG_VERSION")
         }
     })
 }

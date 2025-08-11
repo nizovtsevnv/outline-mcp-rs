@@ -25,7 +25,7 @@ impl Client {
     /// Create new Outline API client
     pub fn new(api_key: ApiKey, base_url: Url) -> Result<Self> {
         let http_client = HttpClient::builder()
-            .user_agent("outline-mcp-rust/1.0.0")
+            .user_agent(&format!("{}/{}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION")))
             .timeout(std::time::Duration::from_secs(30))
             .build()?;
 
@@ -38,7 +38,16 @@ impl Client {
 
     /// Execute POST request to Outline API
     pub async fn post(&self, endpoint: &str, body: Value) -> Result<Value> {
-        let url = self.base_url.join(endpoint)?;
+        // Ensure base_url ends with a slash for proper joining
+        let mut url_string = self.base_url.to_string();
+        if !url_string.ends_with('/') {
+            url_string.push('/');
+        }
+        url_string.push_str(endpoint);
+        let url = url_string.parse::<url::Url>().map_err(|e| Error::Config {
+            message: format!("Invalid URL: {}", url_string),
+            source: Some(Box::new(e)),
+        })?;
 
         debug!("📤 POST request: {} | Body: {}", url, body);
 
@@ -60,7 +69,16 @@ impl Client {
     /// Execute GET request to Outline API
     #[allow(dead_code)]
     pub async fn get(&self, endpoint: &str) -> Result<Value> {
-        let url = self.base_url.join(endpoint)?;
+        // Ensure base_url ends with a slash for proper joining
+        let mut url_string = self.base_url.to_string();
+        if !url_string.ends_with('/') {
+            url_string.push('/');
+        }
+        url_string.push_str(endpoint);
+        let url = url_string.parse::<url::Url>().map_err(|e| Error::Config {
+            message: format!("Invalid URL: {}", url_string),
+            source: Some(Box::new(e)),
+        })?;
 
         debug!("📥 GET request: {}", url);
 
