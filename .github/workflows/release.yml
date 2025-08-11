@@ -92,19 +92,22 @@ jobs:
           echo "keep-derivations = true" >> ~/.config/nix/nix.conf
           echo "builders-use-substitutes = true" >> ~/.config/nix/nix.conf
 
-      # Cache Nix store for macOS builds (aggressive caching)
-      - name: Cache Nix store (macOS only)
+      # Cache Nix dependencies for macOS builds (safe paths only)
+      # Note: /nix/store is excluded due to gtar issues with symlinks and permissions on macOS runners
+      - name: Cache Nix dependencies (macOS only)
         if: contains(matrix.os, 'macos')
         uses: actions/cache@v4
         with:
           path: |
-            /nix/store
             ~/.cache/nix
-          key: nix-store-${{ matrix.target }}-${{ hashFiles('flake.lock', 'Cargo.lock') }}
+            ~/.nix-profile
+            ~/.nix-defexpr
+          key: nix-deps-${{ matrix.target }}-${{ hashFiles('flake.lock', 'Cargo.lock') }}
           restore-keys: |
-            nix-store-${{ matrix.target }}-
-            nix-store-
-            
+            nix-deps-${{ matrix.target }}-
+            nix-deps-
+        continue-on-error: true
+
       # Cache Rust dependencies for release builds
       - name: Cache cargo registry
         uses: actions/cache@v4
