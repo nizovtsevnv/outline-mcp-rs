@@ -10,7 +10,10 @@ use crate::outline::Client as OutlineClient;
 use crate::tools;
 
 /// Handle MCP request
-pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Result<Option<String>> {
+pub async fn handle_request(
+    request: &str,
+    outline_client: &OutlineClient,
+) -> Result<Option<String>> {
     debug!("📨 Received request: {}", request);
 
     // Parse JSON-RPC request
