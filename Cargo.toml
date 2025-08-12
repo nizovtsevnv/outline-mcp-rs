@@ -1,15 +1,15 @@
 [package]
 name = "outline-mcp-rs"
-version = "1.0.5"
+version = "1.0.6"
 edition = "2021"  # Fixed: using stable edition 2021
 authors = ["Nick Nizovtsev <nizovtsevnv@gmail.com>"]
-description = "MCP (Model Context Protocol) server for Outline knowledge base with STDIO and HTTP transport support"
+description = "MCP server for Outline knowledge base integration"
 license = "MIT"
 repository = "https://github.com/nizovtsevnv/outline-mcp-rs"
 homepage = "https://github.com/nizovtsevnv/outline-mcp-rs"
 documentation = "https://github.com/nizovtsevnv/outline-mcp-rs/blob/main/docs/HELP.md"
-keywords = ["outline", "mcp", "ai", "knowledge-base", "api"]
-categories = ["api-bindings", "command-line-utilities", "web-programming"]
+keywords = ["mcp", "outline", "ai", "assistant", "knowledge-base"]
+categories = ["command-line-utilities", "api-bindings"]
 readme = "README.md"
 rust-version = "1.75"  # Real minimum version for edition 2021
 exclude = [

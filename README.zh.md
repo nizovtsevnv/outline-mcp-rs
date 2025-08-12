@@ -111,7 +111,6 @@ Cursor IDE、Gemini CLI 的 JSON 配置：
 - `delete_comment` - 删除评论
 
 ### 🔍 高级功能
-- `ask_documents` - AI 驱动的文档查询
 - `create_template_from_document` - 创建可重用模板
 - `list_users` - 用户管理
 

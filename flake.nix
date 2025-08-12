@@ -149,8 +149,8 @@
             version = "1.0.5";
             src = ./.;
             
-            # Use cargoHash instead of lockFile for better compatibility
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+                    # Use cargoHash instead of lockFile for better compatibility
+        cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
@@ -172,7 +172,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.pkgsStatic.openssl ];
@@ -196,7 +196,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -223,7 +223,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -247,7 +247,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
@@ -272,7 +272,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
+            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.aarch64-darwin; [

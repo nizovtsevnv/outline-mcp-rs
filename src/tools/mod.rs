@@ -44,7 +44,6 @@ pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> 
         | "delete_document"
         | "list_documents"
         | "search_documents"
-        | "ask_documents"
         | "archive_document"
         | "move_document"
         | "create_template_from_document" => {
@@ -86,7 +85,7 @@ mod tests {
     #[test]
     fn test_get_tools_list() {
         let tools = get_tools_list();
-        assert_eq!(tools.len(), 18);
+        assert_eq!(tools.len(), 17);
 
         // Check first tool is a document tool
         let first_tool = &tools[0];

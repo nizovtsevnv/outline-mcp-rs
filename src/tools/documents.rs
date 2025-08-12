@@ -61,14 +61,6 @@ pub fn get_document_tools() -> Vec<Value> {
             ],
         ),
         tool_definition(
-            "ask_documents",
-            "AI query to documents",
-            &[
-                ("query", "string", "Question to documents"),
-                ("document_ids", "array", "List of document IDs (optional)"),
-            ],
-        ),
-        tool_definition(
             "archive_document",
             "Archive document",
             &[("id", "string", "Document ID")],
@@ -105,7 +97,6 @@ pub async fn call_document_tool(
         "delete_document" => delete_document(arguments, client).await,
         "list_documents" => list_documents(arguments, client).await,
         "search_documents" => search_documents(arguments, client).await,
-        "ask_documents" => ask_documents(arguments, client).await,
         "archive_document" => archive_document(arguments, client).await,
         "move_document" => move_document(arguments, client).await,
         "create_template_from_document" => create_template_from_document(arguments, client).await,
@@ -205,27 +196,6 @@ async fn search_documents(args: Value, client: &OutlineClient) -> Result<Value> 
 
     Ok(create_mcp_success_response(
         "Documents searched successfully",
-        Some(response),
-    ))
-}
-
-async fn ask_documents(args: Value, client: &OutlineClient) -> Result<Value> {
-    let query = get_string_arg(&args, "query")?;
-    let document_ids = args
-        .get("document_ids")
-        .and_then(|v| v.as_array())
-        .map(|arr| arr.iter().filter_map(|v| v.as_str()).collect::<Vec<_>>());
-
-    debug!("AI query to documents: {}", query);
-
-    let mut request_body = json!({ "query": query });
-    if let Some(ids) = document_ids {
-        request_body["document_ids"] = json!(ids);
-    }
-
-    let response = client.post("documents.ask", request_body).await?;
-    Ok(create_mcp_success_response(
-        "AI query completed successfully",
         Some(response),
     ))
 }

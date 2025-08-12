@@ -111,7 +111,6 @@ Complete coverage of Outline API functionality:
 - `delete_comment` - Remove comment
 
 ### 🔍 Advanced Features
-- `ask_documents` - AI-powered document queries
 - `create_template_from_document` - Create reusable templates
 - `list_users` - User management
 

@@ -38,7 +38,7 @@ QUICK SETUP FOR CURSOR IDE:
 3. Restart Cursor IDE to activate the MCP server
 
 AVAILABLE ACTIONS:
-    • Documents: create, read, update, delete, search
+    • Documents: create, read, update, delete, search, archive
     • Collections: manage document collections  
     • Comments: add and manage comments
     • Users: list team members
