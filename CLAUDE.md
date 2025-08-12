@@ -29,8 +29,8 @@ After entering the Nix environment, the system environment will use dependencies
 
 ### Required Local Commands (in order):
 ```bash
-# 1. Code formatting (must pass)
-cargo fmt
+# 1. Code formatting check (must pass, auto-fixes if needed)
+cargo fmt --check
 
 # 2. Linting with no warnings allowed  
 cargo clippy -- -D warnings

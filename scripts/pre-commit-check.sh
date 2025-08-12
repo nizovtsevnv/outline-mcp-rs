@@ -7,9 +7,15 @@ set -e
 echo "🔧 Running pre-commit checks..."
 echo ""
 
-echo "1️⃣ Code formatting..."
-cargo fmt
-echo "✅ Formatting complete"
+echo "1️⃣ Code formatting check..."
+if ! cargo fmt --check; then
+    echo "❌ Code formatting issues found. Running cargo fmt to fix..."
+    cargo fmt
+    echo "✅ Code formatted. Please review changes and commit again."
+    exit 1
+else
+    echo "✅ Code formatting is correct"
+fi
 echo ""
 
 echo "2️⃣ Linting (no warnings allowed)..."
