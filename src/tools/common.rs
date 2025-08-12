@@ -53,6 +53,39 @@ pub fn get_optional_number_arg(args: &Value, name: &str) -> Option<i64> {
     args.get(name).and_then(serde_json::Value::as_i64)
 }
 
+/// Create MCP-compliant success response with structured content
+pub fn create_mcp_success_response(message: &str, structured_content: Option<Value>) -> Value {
+    let mut result = json!({
+        "content": [{
+            "type": "text",
+            "text": message
+        }],
+        "isError": false
+    });
+
+    if let Some(content) = structured_content {
+        result["structuredContent"] = content;
+    }
+
+    result
+}
+
+/// Create MCP-compliant error response
+pub fn create_mcp_error_response(error_message: &str) -> Value {
+    json!({
+        "content": [{
+            "type": "text",
+            "text": error_message
+        }],
+        "isError": true
+    })
+}
+
+/// Handle tool error and return MCP-compliant error response
+pub fn handle_tool_error(error: &crate::error::Error) -> Value {
+    create_mcp_error_response(&error.to_string())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

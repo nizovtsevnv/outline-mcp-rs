@@ -3,7 +3,7 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
-use super::common::{get_optional_number_arg, tool_definition};
+use super::common::{create_mcp_success_response, get_optional_number_arg, tool_definition};
 use crate::error::Result;
 use crate::outline::Client as OutlineClient;
 
@@ -35,5 +35,8 @@ async fn list_users(args: Value, client: &OutlineClient) -> Result<Value> {
     }
 
     let response = client.post("users.list", request_body).await?;
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Users listed successfully",
+        Some(response),
+    ))
 }

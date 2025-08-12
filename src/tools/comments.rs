@@ -3,7 +3,7 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
-use super::common::{get_string_arg, tool_definition};
+use super::common::{create_mcp_success_response, get_string_arg, tool_definition};
 use crate::error::Result;
 use crate::outline::{create_comment_request, Client as OutlineClient};
 
@@ -57,10 +57,10 @@ async fn create_comment(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = create_comment_request(&document_id, &data);
     let response = client.post("comments.create", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "comment": response
-    }))
+    Ok(create_mcp_success_response(
+        "Comment created successfully",
+        Some(response),
+    ))
 }
 
 async fn update_comment(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -75,10 +75,10 @@ async fn update_comment(args: Value, client: &OutlineClient) -> Result<Value> {
     });
     let response = client.post("comments.update", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "comment": response
-    }))
+    Ok(create_mcp_success_response(
+        "Comment updated successfully",
+        Some(response),
+    ))
 }
 
 async fn delete_comment(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -89,8 +89,8 @@ async fn delete_comment(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = json!({ "id": id });
     let response = client.post("comments.delete", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "result": response
-    }))
+    Ok(create_mcp_success_response(
+        "Comment deleted successfully",
+        Some(response),
+    ))
 }

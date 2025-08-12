@@ -4,7 +4,7 @@
 
 use serde_json::Value;
 
-use crate::error::{Error, Result};
+use crate::error::Result;
 use crate::outline::Client as OutlineClient;
 
 // Submodules
@@ -36,7 +36,7 @@ pub fn get_tools_list() -> Vec<Value> {
 
 /// Call tool by name
 pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> Result<Value> {
-    match name {
+    let result = match name {
         // Document tools
         "create_document"
         | "get_document"
@@ -64,12 +64,18 @@ pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> 
         // User tools
         "list_users" => users::call_user_tool(name, arguments, client).await,
 
-        // Unknown tool
-        _ => Err(Error::Tool {
-            tool_name: name.to_string(),
-            message: format!("Unknown tool: {name}"),
-            source: None,
-        }),
+        // Unknown tool - return MCP-compliant error
+        _ => {
+            return Ok(common::create_mcp_error_response(&format!(
+                "Unknown tool: {name}"
+            )));
+        }
+    };
+
+    // Handle tool execution errors by converting them to MCP error responses
+    match result {
+        Ok(success_response) => Ok(success_response),
+        Err(error) => Ok(common::handle_tool_error(&error)),
     }
 }
 

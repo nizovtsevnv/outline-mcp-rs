@@ -4,7 +4,8 @@ use serde_json::{json, Value};
 use tracing::debug;
 
 use super::common::{
-    get_optional_number_arg, get_optional_string_arg, get_string_arg, tool_definition,
+    create_mcp_success_response, get_optional_number_arg, get_optional_string_arg, get_string_arg,
+    tool_definition,
 };
 use crate::error::Result;
 use crate::outline::{create_collection_request, Client as OutlineClient};
@@ -66,10 +67,10 @@ async fn create_collection(args: Value, client: &OutlineClient) -> Result<Value>
     let request_body = create_collection_request(&name, description.as_deref());
     let response = client.post("collections.create", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "collection": response
-    }))
+    Ok(create_mcp_success_response(
+        "Collection created successfully",
+        Some(response),
+    ))
 }
 
 async fn get_collection(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -80,7 +81,10 @@ async fn get_collection(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = json!({ "id": id });
     let response = client.post("collections.info", request_body).await?;
 
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Collection retrieved successfully",
+        Some(response),
+    ))
 }
 
 async fn update_collection(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -100,10 +104,10 @@ async fn update_collection(args: Value, client: &OutlineClient) -> Result<Value>
 
     let response = client.post("collections.update", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "collection": response
-    }))
+    Ok(create_mcp_success_response(
+        "Collection updated successfully",
+        Some(response),
+    ))
 }
 
 async fn list_collections(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -117,5 +121,8 @@ async fn list_collections(args: Value, client: &OutlineClient) -> Result<Value> 
     }
 
     let response = client.post("collections.list", request_body).await?;
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Collection retrieved successfully",
+        Some(response),
+    ))
 }

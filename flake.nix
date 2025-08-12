@@ -24,7 +24,7 @@
           else {
             # Fallback values if Cargo.toml not available
             name = "outline-mcp-rs";
-            version = "1.0.3";
+            version = "1.0.5";
             description = "MCP server for Outline knowledge base";
             license = "MIT";
             repository = "https://github.com/nizovtsevnv/outline-mcp-rs";
@@ -146,11 +146,11 @@
         packages = {
           default = pkgs.rustPlatform.buildRustPackage {
             pname = packageMeta.name;
-            version = "1.0.4";
+            version = "1.0.5";
             src = ./.;
             
             # Use cargoHash instead of lockFile for better compatibility
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
@@ -172,7 +172,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.pkgsStatic.openssl ];
@@ -196,7 +196,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -223,7 +223,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -247,7 +247,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
@@ -272,7 +272,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
+            cargoHash = "sha256-DAI+7obVfFVVXt6aQCEr3NuBXPF8oZyBlXtzKwyiA9Q=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.aarch64-darwin; [

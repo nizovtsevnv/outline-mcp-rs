@@ -4,7 +4,8 @@ use serde_json::{json, Value};
 use tracing::debug;
 
 use super::common::{
-    get_optional_number_arg, get_optional_string_arg, get_string_arg, tool_definition,
+    create_mcp_success_response, get_optional_number_arg, get_optional_string_arg, get_string_arg,
+    tool_definition,
 };
 use crate::error::Result;
 use crate::outline::{
@@ -122,10 +123,10 @@ async fn create_document(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = create_document_request(&title, &text, collection_id.as_deref());
     let response = client.post("documents.create", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "document": response
-    }))
+    Ok(create_mcp_success_response(
+        "Document created successfully",
+        Some(response),
+    ))
 }
 
 async fn get_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -136,7 +137,10 @@ async fn get_document(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = json!({ "id": id });
     let response = client.post("documents.info", request_body).await?;
 
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Document retrieved successfully",
+        Some(response),
+    ))
 }
 
 async fn update_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -149,10 +153,10 @@ async fn update_document(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = update_document_request(&id, title.as_deref(), text.as_deref());
     let response = client.post("documents.update", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "document": response
-    }))
+    Ok(create_mcp_success_response(
+        "Document updated successfully",
+        Some(response),
+    ))
 }
 
 async fn delete_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -163,10 +167,10 @@ async fn delete_document(args: Value, client: &OutlineClient) -> Result<Value> {
     let request_body = json!({ "id": id });
     let response = client.post("documents.delete", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "result": response
-    }))
+    Ok(create_mcp_success_response(
+        "Document deleted successfully",
+        Some(response),
+    ))
 }
 
 async fn list_documents(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -184,7 +188,10 @@ async fn list_documents(args: Value, client: &OutlineClient) -> Result<Value> {
     }
 
     let response = client.post("documents.list", request_body).await?;
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Documents listed successfully",
+        Some(response),
+    ))
 }
 
 async fn search_documents(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -196,7 +203,10 @@ async fn search_documents(args: Value, client: &OutlineClient) -> Result<Value> 
     let request_body = search_documents_request(&query, limit);
     let response = client.post("documents.search", request_body).await?;
 
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "Documents searched successfully",
+        Some(response),
+    ))
 }
 
 async fn ask_documents(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -214,7 +224,10 @@ async fn ask_documents(args: Value, client: &OutlineClient) -> Result<Value> {
     }
 
     let response = client.post("documents.ask", request_body).await?;
-    Ok(response)
+    Ok(create_mcp_success_response(
+        "AI query completed successfully",
+        Some(response),
+    ))
 }
 
 async fn archive_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -225,10 +238,10 @@ async fn archive_document(args: Value, client: &OutlineClient) -> Result<Value> 
     let request_body = json!({ "id": id });
     let response = client.post("documents.archive", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "result": response
-    }))
+    Ok(create_mcp_success_response(
+        "Document archived successfully",
+        Some(response),
+    ))
 }
 
 async fn move_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -243,10 +256,10 @@ async fn move_document(args: Value, client: &OutlineClient) -> Result<Value> {
     });
     let response = client.post("documents.move", request_body).await?;
 
-    Ok(json!({
-        "success": true,
-        "result": response
-    }))
+    Ok(create_mcp_success_response(
+        "Document moved successfully",
+        Some(response),
+    ))
 }
 
 async fn create_template_from_document(args: Value, client: &OutlineClient) -> Result<Value> {
@@ -263,8 +276,8 @@ async fn create_template_from_document(args: Value, client: &OutlineClient) -> R
         .post("documents.create_template", request_body)
         .await?;
 
-    Ok(json!({
-        "success": true,
-        "template": response
-    }))
+    Ok(create_mcp_success_response(
+        "Template created successfully",
+        Some(response),
+    ))
 }
