@@ -150,7 +150,7 @@
             src = ./.;
             
             # Use cargoHash instead of lockFile for better compatibility
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
@@ -172,7 +172,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ pkgs.pkgsStatic.openssl ];
@@ -196,7 +196,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -223,7 +223,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = [ 
@@ -247,7 +247,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
@@ -272,7 +272,7 @@
             version = packageMeta.version;
             src = ./.;
             
-            cargoHash = "sha256-GDwATySvJD2qO/NNceCjmYJViAdujx72p9Cw/jb13Io=";
+            cargoHash = "sha256-VtIJhhGSqjuV1sCbT5kM2wEGqAICS0FHix+j9ikmQiM=";
             
             nativeBuildInputs = [ pkgs.pkg-config ];
             buildInputs = with pkgs.pkgsCross.aarch64-darwin; [
