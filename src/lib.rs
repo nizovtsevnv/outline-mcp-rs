@@ -84,9 +84,12 @@ pub async fn run_stdio(config: Config) -> Result<()> {
 
         // Process JSON-RPC request
         match mcp::handle_request(&input, &outline_client).await {
-            Ok(response) => {
+            Ok(Some(response)) => {
                 writeln!(stdout, "{response}")?;
                 stdout.flush()?;
+            }
+            Ok(None) => {
+                // No response needed (notification), just continue
             }
             Err(e) => {
                 error!("Error processing request: {}", e);
@@ -177,12 +180,17 @@ async fn handle_http_connection(
 
             // Process MCP request
             match mcp::handle_request(&body, &outline_client).await {
-                Ok(response) => {
+                Ok(Some(response)) => {
                     let http_response = format!(
                         "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
                         response.len(),
                         response
                     );
+                    stream.write_all(http_response.as_bytes()).await?;
+                }
+                Ok(None) => {
+                    // No response needed (notification), send 204 No Content
+                    let http_response = "HTTP/1.1 204 No Content\r\n\r\n";
                     stream.write_all(http_response.as_bytes()).await?;
                 }
                 Err(e) => {

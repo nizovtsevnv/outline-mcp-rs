@@ -146,7 +146,7 @@
         packages = {
           default = pkgs.rustPlatform.buildRustPackage {
             pname = packageMeta.name;
-            version = packageMeta.version;
+            version = "1.0.4";
             src = ./.;
             
             # Use cargoHash instead of lockFile for better compatibility

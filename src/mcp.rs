@@ -10,7 +10,7 @@ use crate::outline::Client as OutlineClient;
 use crate::tools;
 
 /// Handle MCP request
-pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Result<String> {
+pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Result<Option<String>> {
     debug!("📨 Received request: {}", request);
 
     // Parse JSON-RPC request
@@ -34,18 +34,18 @@ pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Re
     // Dispatch MCP methods
     let result = match method {
         // MCP initialization
-        "initialize" => Ok(handle_initialize(params)),
+        "initialize" => Ok(Some(handle_initialize(params))),
 
         // Get tools list
-        "tools/list" => Ok(handle_tools_list(params)),
+        "tools/list" => Ok(Some(handle_tools_list(params))),
 
         // Call tool
-        "tools/call" => handle_tools_call(params, outline_client).await,
+        "tools/call" => handle_tools_call(params, outline_client).await.map(Some),
 
         // Notifications (no response required)
         "notifications/initialized" => {
             debug!("🔔 Client initialization notification received");
-            return Ok(String::new()); // Return empty string for notifications
+            return Ok(None); // Return None for notifications - no response needed
         }
 
         // Unknown method
@@ -60,15 +60,24 @@ pub async fn handle_request(request: &str, outline_client: &OutlineClient) -> Re
     };
 
     // Create JSON-RPC response
-    let response = match result {
-        Ok(result_value) => create_success_response(id.as_ref(), &result_value),
-        Err(error) => create_error_response_with_id(id.as_ref(), &error),
-    };
-
-    let response_str = serde_json::to_string(&response)?;
-    debug!("📤 Sending response: {}", response_str);
-
-    Ok(response_str)
+    match result {
+        Ok(Some(result_value)) => {
+            let response = create_success_response(id.as_ref(), &result_value);
+            let response_str = serde_json::to_string(&response)?;
+            debug!("📤 Sending response: {}", response_str);
+            Ok(Some(response_str))
+        }
+        Ok(None) => {
+            // No response needed (for notifications)
+            Ok(None)
+        }
+        Err(error) => {
+            let response = create_error_response_with_id(id.as_ref(), &error);
+            let response_str = serde_json::to_string(&response)?;
+            debug!("📤 Sending error response: {}", response_str);
+            Ok(Some(response_str))
+        }
+    }
 }
 
 /// Create success response

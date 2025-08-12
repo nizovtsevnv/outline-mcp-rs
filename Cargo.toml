@@ -1,6 +1,6 @@
 [package]
 name = "outline-mcp-rs"
-version = "1.0.3"
+version = "1.0.4"
 edition = "2021"  # Fixed: using stable edition 2021
 authors = ["Nick Nizovtsev <nizovtsevnv@gmail.com>"]
 description = "MCP (Model Context Protocol) server for Outline knowledge base with STDIO and HTTP transport support"
