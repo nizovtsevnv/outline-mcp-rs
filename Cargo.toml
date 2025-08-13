@@ -68,6 +68,9 @@ dotenvy = "0.15"
 # Error handling
 thiserror = "1.0"
 
+# Security advisory override: ensure patched slab version
+slab = "0.4.11"
+
 # Build optimizations for release
 [profile.release]
 lto = "fat"           # Link Time Optimization for size

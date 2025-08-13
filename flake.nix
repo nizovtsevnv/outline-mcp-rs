@@ -144,152 +144,152 @@
 
         # Package definition using Cargo.toml metadata
         packages = {
-          default = pkgs.rustPlatform.buildRustPackage {
-            pname = packageMeta.name;
-            version = "1.0.5";
-            src = ./.;
-            
-                    # Use cargoHash instead of lockFile for better compatibility
-        cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
-              # Use newer Darwin frameworks (12.3 is the newest available)
-              pkgs.darwin.apple_sdk_12_3.frameworks.Security
-              pkgs.darwin.apple_sdk_12_3.frameworks.CoreFoundation  
-              pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration
-            ];
-            meta = with pkgs.lib; {
-              description = packageMeta.description;
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+  default = pkgs.rustPlatform.buildRustPackage {
+    pname = packageMeta.name;
+    version = packageMeta.version;
+    src = ./.;
+    
+            # Use cargoHash instead of lockFile for better compatibility
+        cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
+      # Use newer Darwin frameworks (12.3 is the newest available)
+      pkgs.darwin.apple_sdk_12_3.frameworks.Security
+      pkgs.darwin.apple_sdk_12_3.frameworks.CoreFoundation  
+      pkgs.darwin.apple_sdk_12_3.frameworks.SystemConfiguration
+    ];
+    meta = with pkgs.lib; {
+      description = packageMeta.description;
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
 
           # musl static build
-          musl = pkgs.pkgsStatic.rustPlatform.buildRustPackage {
-            pname = "${packageMeta.name}-musl";
-            version = packageMeta.version;
-            src = ./.;
-            
-            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = [ pkgs.pkgsStatic.openssl ];
-            
-            CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
-            OPENSSL_STATIC = "1";
-            OPENSSL_LIB_DIR = "${pkgs.pkgsStatic.openssl.out}/lib";
-            OPENSSL_INCLUDE_DIR = "${pkgs.pkgsStatic.openssl.dev}/include";
-            PKG_CONFIG_ALL_STATIC = "1";
-            
-            meta = with pkgs.lib; {
-              description = "${packageMeta.description} (musl static)";
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+            musl = pkgs.pkgsStatic.rustPlatform.buildRustPackage {
+    pname = "${packageMeta.name}-musl";
+    version = packageMeta.version;
+    src = ./.;
+    
+    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [ pkgs.pkgsStatic.openssl ];
+    
+    CARGO_BUILD_TARGET = "x86_64-unknown-linux-musl";
+    OPENSSL_STATIC = "1";
+    OPENSSL_LIB_DIR = "${pkgs.pkgsStatic.openssl.out}/lib";
+    OPENSSL_INCLUDE_DIR = "${pkgs.pkgsStatic.openssl.dev}/include";
+    PKG_CONFIG_ALL_STATIC = "1";
+    
+    meta = with pkgs.lib; {
+      description = "${packageMeta.description} (musl static)";
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
 
           # glibc optimized build (smaller dynamic binary with static OpenSSL)
-          glibc-optimized = pkgs.rustPlatform.buildRustPackage {
-            pname = "${packageMeta.name}-glibc-optimized";
-            version = packageMeta.version;
-            src = ./.;
-            
-            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = [ 
-              pkgs.openssl.dev
-              pkgs.openssl.out
-            ];
-            
-            CARGO_BUILD_TARGET = "x86_64-unknown-linux-gnu";
-            OPENSSL_STATIC = "1";
-            OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
-            OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
-            PKG_CONFIG_ALL_STATIC = "1";
-            
-            meta = with pkgs.lib; {
-              description = "${packageMeta.description} (glibc optimized - static OpenSSL, dynamic glibc)";
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+            glibc-optimized = pkgs.rustPlatform.buildRustPackage {
+    pname = "${packageMeta.name}-glibc-optimized";
+    version = packageMeta.version;
+    src = ./.;
+    
+    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [ 
+      pkgs.openssl.dev
+      pkgs.openssl.out
+    ];
+    
+    CARGO_BUILD_TARGET = "x86_64-unknown-linux-gnu";
+    OPENSSL_STATIC = "1";
+    OPENSSL_LIB_DIR = "${pkgs.openssl.out}/lib";
+    OPENSSL_INCLUDE_DIR = "${pkgs.openssl.dev}/include";
+    PKG_CONFIG_ALL_STATIC = "1";
+    
+    meta = with pkgs.lib; {
+      description = "${packageMeta.description} (glibc optimized - static OpenSSL, dynamic glibc)";
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
 
           # Windows cross-compilation
-          windows = pkgs.pkgsCross.mingwW64.rustPlatform.buildRustPackage {
-            pname = "${packageMeta.name}-windows";
-            version = packageMeta.version;
-            src = ./.;
-            
-            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = [ 
-              pkgs.pkgsCross.mingwW64.windows.pthreads
-            ];
-            
-            CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
-            PKG_CONFIG_ALLOW_CROSS = "1";
-            CARGO_TARGET_X86_64_PC_WINDOWS_GNU_RUSTFLAGS = "-L ${pkgs.pkgsCross.mingwW64.windows.pthreads}/lib";
-            
-            meta = with pkgs.lib; {
-              description = "${packageMeta.description} (Windows)";
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+            windows = pkgs.pkgsCross.mingwW64.rustPlatform.buildRustPackage {
+    pname = "${packageMeta.name}-windows";
+    version = packageMeta.version;
+    src = ./.;
+    
+    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = [ 
+      pkgs.pkgsCross.mingwW64.windows.pthreads
+    ];
+    
+    CARGO_BUILD_TARGET = "x86_64-pc-windows-gnu";
+    PKG_CONFIG_ALLOW_CROSS = "1";
+    CARGO_TARGET_X86_64_PC_WINDOWS_GNU_RUSTFLAGS = "-L ${pkgs.pkgsCross.mingwW64.windows.pthreads}/lib";
+    
+    meta = with pkgs.lib; {
+      description = "${packageMeta.description} (Windows)";
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
 
           # macOS x86_64 cross-compilation  
-          macos-x86_64 = pkgs.pkgsCross.x86_64-darwin.rustPlatform.buildRustPackage {
-            pname = "${packageMeta.name}-macos-x86_64";
-            version = packageMeta.version;
-            src = ./.;
-            
-            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
-              darwin.apple_sdk.frameworks.Security
-              darwin.apple_sdk.frameworks.CoreFoundation
-              darwin.apple_sdk.frameworks.SystemConfiguration
-            ];
-            
-            CARGO_BUILD_TARGET = "x86_64-apple-darwin";
-            PKG_CONFIG_ALLOW_CROSS = "1";
-            
-            meta = with pkgs.lib; {
-              description = "${packageMeta.description} (macOS x86_64)";
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+            macos-x86_64 = pkgs.pkgsCross.x86_64-darwin.rustPlatform.buildRustPackage {
+    pname = "${packageMeta.name}-macos-x86_64";
+    version = packageMeta.version;
+    src = ./.;
+    
+    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
+      darwin.apple_sdk.frameworks.Security
+      darwin.apple_sdk.frameworks.CoreFoundation
+      darwin.apple_sdk.frameworks.SystemConfiguration
+    ];
+    
+    CARGO_BUILD_TARGET = "x86_64-apple-darwin";
+    PKG_CONFIG_ALLOW_CROSS = "1";
+    
+    meta = with pkgs.lib; {
+      description = "${packageMeta.description} (macOS x86_64)";
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
 
           # macOS ARM64 (Apple Silicon) cross-compilation
-          macos-arm64 = pkgs.pkgsCross.aarch64-darwin.rustPlatform.buildRustPackage {
-            pname = "${packageMeta.name}-macos-arm64";
-            version = packageMeta.version;
-            src = ./.;
-            
-            cargoHash = "sha256-3OlRyp+jV5MJtf6QP5GvQgCP5FI1l6PxeZL46r6W98s=";
-            
-            nativeBuildInputs = [ pkgs.pkg-config ];
-            buildInputs = with pkgs.pkgsCross.aarch64-darwin; [
-              darwin.apple_sdk.frameworks.Security
-              darwin.apple_sdk.frameworks.CoreFoundation  
-              darwin.apple_sdk.frameworks.SystemConfiguration
-            ];
-            
-            CARGO_BUILD_TARGET = "aarch64-apple-darwin";
-            PKG_CONFIG_ALLOW_CROSS = "1";
-            
-            meta = with pkgs.lib; {
-              description = "${packageMeta.description} (macOS ARM64)";
-              license = licenses.mit;
-              homepage = packageMeta.repository;
-            };
-          };
+            macos-arm64 = pkgs.pkgsCross.aarch64-darwin.rustPlatform.buildRustPackage {
+    pname = "${packageMeta.name}-macos-arm64";
+    version = packageMeta.version;
+    src = ./.;
+    
+    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    
+    nativeBuildInputs = [ pkgs.pkg-config ];
+    buildInputs = with pkgs.pkgsCross.aarch64-darwin; [
+      darwin.apple_sdk.frameworks.Security
+      darwin.apple_sdk.frameworks.CoreFoundation  
+      darwin.apple_sdk.frameworks.SystemConfiguration
+    ];
+    
+    CARGO_BUILD_TARGET = "aarch64-apple-darwin";
+    PKG_CONFIG_ALLOW_CROSS = "1";
+    
+    meta = with pkgs.lib; {
+      description = "${packageMeta.description} (macOS ARM64)";
+      license = licenses.mit;
+      homepage = packageMeta.repository;
+    };
+  };
         };
       }
     );
