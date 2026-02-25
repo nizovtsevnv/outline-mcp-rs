@@ -43,7 +43,7 @@ jobs:
             name: macos-x86_64
             nix-package: default  # Use native build on Intel runner
             binary: outline-mcp
-            os: macos-13  # Intel runner
+            os: macos-14  # Intel binary built on ARM runner via Nix cross-compilation
           - target: aarch64-apple-darwin
             name: macos-arm64
             nix-package: default  # Use native build on ARM runner  
