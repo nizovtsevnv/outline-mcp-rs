@@ -70,12 +70,13 @@ mod tests {
         let (tx, rx) = mpsc::channel(16);
         let mut body = SseBody::new(rx);
 
+        use hyper::body::Body;
+
         tx.send(encode_event(r#"{"id":1}"#)).await.unwrap();
         drop(tx);
 
-        use hyper::body::Body;
         let waker = std::task::Waker::noop();
-        let mut cx = Context::from_waker(&waker);
+        let mut cx = Context::from_waker(waker);
         let frame = Pin::new(&mut body).poll_frame(&mut cx);
 
         // Channel has data, should be ready
