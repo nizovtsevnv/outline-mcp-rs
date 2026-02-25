@@ -12,7 +12,7 @@ async fn test_full_document_workflow() {
     // For now, just test configuration and request creation
 
     let config = create_test_config();
-    assert!(!config.outline_api_key.as_str().is_empty());
+    assert!(!config.outline_api_key.as_ref().unwrap().as_str().is_empty());
 
     // Test full workflow sequence
     let requests = [

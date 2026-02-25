@@ -24,20 +24,42 @@ pub struct Client {
 impl Client {
     /// Create new Outline API client
     pub fn new(api_key: ApiKey, base_url: Url) -> Result<Self> {
-        let http_client = HttpClient::builder()
-            .user_agent(format!(
-                "{}/{}",
-                env!("CARGO_PKG_NAME"),
-                env!("CARGO_PKG_VERSION")
-            ))
-            .timeout(std::time::Duration::from_secs(30))
-            .build()?;
+        let http_client = Self::build_http_client()?;
 
         Ok(Self {
             http: http_client,
             api_key,
             base_url,
         })
+    }
+
+    /// Build a shared HTTP client for multi-user mode
+    ///
+    /// # Errors
+    ///
+    /// Returns error if the HTTP client cannot be built.
+    pub fn build_http_client() -> Result<HttpClient> {
+        HttpClient::builder()
+            .user_agent(format!(
+                "{}/{}",
+                env!("CARGO_PKG_NAME"),
+                env!("CARGO_PKG_VERSION")
+            ))
+            .timeout(std::time::Duration::from_secs(30))
+            .build()
+            .map_err(Into::into)
+    }
+
+    /// Create client from pre-built HTTP client, API key, and base URL
+    ///
+    /// Used in HTTP multi-user mode where a shared `reqwest::Client` is reused
+    /// across requests, each with a different user API key.
+    pub const fn from_parts(http: HttpClient, api_key: ApiKey, base_url: Url) -> Self {
+        Self {
+            http,
+            api_key,
+            base_url,
+        }
     }
 
     /// Execute POST request to Outline API

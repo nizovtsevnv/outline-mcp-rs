@@ -18,6 +18,7 @@ Thumbs.db
 # Nix
 result
 result-*
+.direnv/
 
 # Logs
 *.log

@@ -9,8 +9,8 @@ use url::Url;
 /// Application configuration
 #[derive(Debug, Clone)]
 pub struct Config {
-    /// API key for Outline access
-    pub outline_api_key: ApiKey,
+    /// API key for Outline access (required for STDIO, optional for HTTP)
+    pub outline_api_key: Option<ApiKey>,
     /// Outline API URL
     pub outline_api_url: Url,
     /// HTTP server IP address
@@ -20,6 +20,14 @@ pub struct Config {
     /// Log level (unused but may be useful in future)
     #[allow(dead_code)]
     pub log_level: LogLevel,
+    /// Maximum HTTP request body size in bytes (default: 1MB)
+    pub http_max_body_size: usize,
+    /// HTTP session timeout in seconds (default: 1800 = 30 minutes)
+    pub http_session_timeout: u64,
+    /// Rate limit: requests per minute per IP (default: 60)
+    pub http_rate_limit: u32,
+    /// Allowed MCP authentication tokens (required for HTTP mode)
+    pub mcp_auth_tokens: Vec<String>,
 }
 
 impl Config {
@@ -29,10 +37,10 @@ impl Config {
     ///
     /// Returns error if required environment variables are missing or invalid.
     pub fn from_env() -> Result<Self> {
-        let outline_api_key = std::env::var("OUTLINE_API_KEY").map_err(|_| Error::Config {
-            message: "OUTLINE_API_KEY environment variable required".to_string(),
-            source: None,
-        })?;
+        let outline_api_key = std::env::var("OUTLINE_API_KEY")
+            .ok()
+            .map(ApiKey::new)
+            .transpose()?;
 
         let outline_api_url = std::env::var("OUTLINE_API_URL")
             .unwrap_or_else(|_| "https://app.getoutline.com/api".to_string());
@@ -43,8 +51,30 @@ impl Config {
 
         let log_level = std::env::var("RUST_LOG").unwrap_or_else(|_| "info".to_string());
 
+        let http_max_body_size: usize = std::env::var("HTTP_MAX_BODY_SIZE")
+            .unwrap_or_else(|_| "1048576".to_string())
+            .parse()
+            .map_err(|e| Error::config_with_source("Invalid HTTP_MAX_BODY_SIZE", e))?;
+
+        let http_session_timeout: u64 = std::env::var("HTTP_SESSION_TIMEOUT")
+            .unwrap_or_else(|_| "1800".to_string())
+            .parse()
+            .map_err(|e| Error::config_with_source("Invalid HTTP_SESSION_TIMEOUT", e))?;
+
+        let http_rate_limit: u32 = std::env::var("HTTP_RATE_LIMIT")
+            .unwrap_or_else(|_| "60".to_string())
+            .parse()
+            .map_err(|e| Error::config_with_source("Invalid HTTP_RATE_LIMIT", e))?;
+
+        let mcp_auth_tokens: Vec<String> = std::env::var("MCP_AUTH_TOKENS")
+            .unwrap_or_default()
+            .split(',')
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty())
+            .collect();
+
         Ok(Self {
-            outline_api_key: ApiKey::new(outline_api_key)?,
+            outline_api_key,
             outline_api_url: outline_api_url
                 .parse()
                 .map_err(|e| Error::config_with_source("Invalid OUTLINE_API_URL", e))?,
@@ -57,6 +87,10 @@ impl Config {
                     .map_err(|e| Error::config_with_source("Invalid HTTP_PORT", e))?,
             )?,
             log_level: LogLevel::new(&log_level)?,
+            http_max_body_size,
+            http_session_timeout,
+            http_rate_limit,
+            mcp_auth_tokens,
         })
     }
 
@@ -87,11 +121,15 @@ impl Config {
     #[allow(dead_code)]
     pub fn for_testing() -> Self {
         Self {
-            outline_api_key: ApiKey::new("test-api-key-12345".to_string()).unwrap(),
+            outline_api_key: Some(ApiKey::new("test-api-key-12345".to_string()).unwrap()),
             outline_api_url: "https://test.example.com/api".parse().unwrap(),
             http_host: "127.0.0.1".parse().unwrap(),
             http_port: Port::new(3000).unwrap(),
             log_level: LogLevel::new("info").unwrap(),
+            http_max_body_size: 1_048_576,
+            http_session_timeout: 1800,
+            http_rate_limit: 60,
+            mcp_auth_tokens: vec![],
         }
     }
 }

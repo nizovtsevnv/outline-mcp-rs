@@ -81,6 +81,31 @@ pub fn get_document_tools() -> Vec<Value> {
                 ("name", "string", "Template name"),
             ],
         ),
+        tool_definition(
+            "restore_document",
+            "Restore document from trash",
+            &[
+                ("id", "string", "Document ID"),
+                (
+                    "collection_id",
+                    "string",
+                    "Target collection ID (optional, if original was deleted)",
+                ),
+            ],
+        ),
+        tool_definition(
+            "unarchive_document",
+            "Unarchive document (reverse of archive)",
+            &[("id", "string", "Document ID")],
+        ),
+        tool_definition(
+            "list_drafts",
+            "List draft documents",
+            &[
+                ("collection_id", "string", "Collection ID filter (optional)"),
+                ("limit", "number", "Number of drafts (optional)"),
+            ],
+        ),
     ]
 }
 
@@ -100,6 +125,9 @@ pub async fn call_document_tool(
         "archive_document" => archive_document(arguments, client).await,
         "move_document" => move_document(arguments, client).await,
         "create_template_from_document" => create_template_from_document(arguments, client).await,
+        "restore_document" => restore_document(arguments, client).await,
+        "unarchive_document" => unarchive_document(arguments, client).await,
+        "list_drafts" => list_drafts(arguments, client).await,
         _ => unreachable!("Unknown document tool: {}", name),
     }
 }
@@ -222,7 +250,7 @@ async fn move_document(args: Value, client: &OutlineClient) -> Result<Value> {
 
     let request_body = json!({
         "id": id,
-        "collection_id": collection_id
+        "collectionId": collection_id
     });
     let response = client.post("documents.move", request_body).await?;
 
@@ -242,12 +270,65 @@ async fn create_template_from_document(args: Value, client: &OutlineClient) -> R
         "id": id,
         "name": name
     });
-    let response = client
-        .post("documents.create_template", request_body)
-        .await?;
+    let response = client.post("documents.templatize", request_body).await?;
 
     Ok(create_mcp_success_response(
         "Template created successfully",
+        Some(response),
+    ))
+}
+
+async fn restore_document(args: Value, client: &OutlineClient) -> Result<Value> {
+    let id = get_string_arg(&args, "id")?;
+    let collection_id = get_optional_string_arg(&args, "collection_id");
+
+    debug!("Restoring document: {}", id);
+
+    let mut request_body = json!({ "id": id });
+    if let Some(cid) = collection_id {
+        request_body["collectionId"] = json!(cid);
+    }
+
+    let response = client.post("documents.restore", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Document restored successfully",
+        Some(response),
+    ))
+}
+
+async fn unarchive_document(args: Value, client: &OutlineClient) -> Result<Value> {
+    let id = get_string_arg(&args, "id")?;
+
+    debug!("Unarchiving document: {}", id);
+
+    let request_body = json!({ "id": id });
+    let response = client.post("documents.unarchive", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Document unarchived successfully",
+        Some(response),
+    ))
+}
+
+async fn list_drafts(args: Value, client: &OutlineClient) -> Result<Value> {
+    let collection_id = get_optional_string_arg(&args, "collection_id");
+    let limit = get_optional_number_arg(&args, "limit");
+
+    debug!("Listing draft documents");
+
+    let mut request_body = json!({});
+    if let Some(cid) = collection_id {
+        request_body["collectionId"] = json!(cid);
+    }
+    if let Some(lim) = limit {
+        request_body["limit"] = json!(lim);
+    }
+
+    let response = client.post("documents.drafts", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Drafts listed successfully",
         Some(response),
     ))
 }

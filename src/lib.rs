@@ -17,10 +17,10 @@
 //! #[tokio::main]
 //! async fn main() -> outline_mcp_rs::Result<()> {
 //!     let config = Config::from_env()?;
-//!     
+//!
 //!     // STDIO mode
 //!     run_stdio(config.clone()).await?;
-//!     
+//!
 //!     // Or HTTP mode
 //!     run_http(config).await
 //! }
@@ -41,6 +41,7 @@ pub use error::{Error, Result};
 pub mod cli;
 pub mod config;
 pub mod error;
+mod http;
 mod mcp;
 mod outline;
 mod tools;
@@ -48,6 +49,7 @@ mod tools;
 /// Run server in STDIO mode
 ///
 /// Used for integration with MCP clients through standard input/output streams.
+/// Requires `OUTLINE_API_KEY` environment variable to be set.
 ///
 /// # Errors
 ///
@@ -59,10 +61,16 @@ pub async fn run_stdio(config: Config) -> Result<()> {
     let stdin = io::stdin();
     let mut stdout = io::stdout();
 
-    // Initialize Outline API client
-    let outline_client = outline::Client::new(config.outline_api_key, config.outline_api_url)?;
+    // STDIO mode requires OUTLINE_API_KEY
+    let api_key = config.outline_api_key.ok_or_else(|| Error::Config {
+        message: "OUTLINE_API_KEY environment variable required for STDIO mode".to_string(),
+        source: None,
+    })?;
 
-    debug!("✅ STDIO server ready");
+    // Initialize Outline API client
+    let outline_client = outline::Client::new(api_key, config.outline_api_url)?;
+
+    debug!("STDIO server ready");
 
     // Main STDIO processing loop
     loop {
@@ -105,112 +113,46 @@ pub async fn run_stdio(config: Config) -> Result<()> {
 
 /// Run server in HTTP mode
 ///
-/// Creates web server on host and port specified in configuration.
+/// Creates a Streamable HTTP server with multi-user support, authentication,
+/// rate limiting, and session management.
+///
+/// Required environment variables:
+/// - `MCP_AUTH_TOKENS` — comma-separated list of allowed MCP authentication tokens
+///
+/// Optional environment variables:
+/// - `OUTLINE_API_URL` — Outline API base URL (default: `https://app.getoutline.com/api`)
+/// - `HTTP_HOST` — bind address (default: `127.0.0.1`)
+/// - `HTTP_PORT` — port number (default: `3000`)
+/// - `HTTP_MAX_BODY_SIZE` — max request body in bytes (default: `1048576`)
+/// - `HTTP_SESSION_TIMEOUT` — session TTL in seconds (default: `1800`)
+/// - `HTTP_RATE_LIMIT` — requests per minute per IP (default: `60`)
 ///
 /// # Errors
 ///
-/// Returns error if there are problems binding to port or HTTP transport.
+/// Returns error if there are problems binding to port, building the HTTP client,
+/// or if `MCP_AUTH_TOKENS` is not set.
 pub async fn run_http(config: Config) -> Result<()> {
-    use tokio::net::TcpListener;
-    use tracing::{debug, error, info};
+    use tracing::warn;
 
-    let addr = format!("{}:{}", config.http_host, config.http_port.as_u16());
-    let listener = TcpListener::bind(&addr).await?;
-
-    info!("🌐 HTTP server started on {}", addr);
-    info!("📡 Available at /mcp for MCP requests");
-
-    // Initialize Outline API client
-    let outline_client = outline::Client::new(config.outline_api_key, config.outline_api_url)?;
-
-    loop {
-        match listener.accept().await {
-            Ok((stream, addr)) => {
-                debug!("🔗 New connection: {}", addr);
-                let client = outline_client.clone();
-
-                tokio::spawn(async move {
-                    if let Err(e) = handle_http_connection(stream, client).await {
-                        error!("Error handling HTTP connection: {}", e);
-                    }
-                });
-            }
-            Err(e) => {
-                error!("Error accepting connection: {}", e);
-            }
-        }
-    }
-}
-
-/// Handle HTTP connection
-async fn handle_http_connection(
-    mut stream: tokio::net::TcpStream,
-    outline_client: outline::Client,
-) -> Result<()> {
-    use tokio::io::{AsyncBufReadExt, AsyncWriteExt, BufReader};
-
-    let mut reader = BufReader::new(&mut stream);
-    let mut request_line = String::new();
-    reader.read_line(&mut request_line).await?;
-
-    // Simple HTTP handling
-    if request_line.starts_with("POST /mcp") {
-        // Read headers
-        let mut content_length = 0;
-        loop {
-            let mut line = String::new();
-            reader.read_line(&mut line).await?;
-
-            if line.trim().is_empty() {
-                break;
-            }
-
-            if line.to_lowercase().starts_with("content-length:") {
-                if let Some(len_str) = line.split(':').nth(1) {
-                    content_length = len_str.trim().parse().unwrap_or(0);
-                }
-            }
-        }
-
-        // Read request body
-        if content_length > 0 {
-            let mut buffer = vec![0; content_length];
-            tokio::io::AsyncReadExt::read_exact(&mut reader, &mut buffer).await?;
-            let body = String::from_utf8(buffer)?;
-
-            // Process MCP request
-            match mcp::handle_request(&body, &outline_client).await {
-                Ok(Some(response)) => {
-                    let http_response = format!(
-                        "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
-                        response.len(),
-                        response
-                    );
-                    stream.write_all(http_response.as_bytes()).await?;
-                }
-                Ok(None) => {
-                    // No response needed (notification), send 204 No Content
-                    let http_response = "HTTP/1.1 204 No Content\r\n\r\n";
-                    stream.write_all(http_response.as_bytes()).await?;
-                }
-                Err(e) => {
-                    let error_response = mcp::create_error_response(&e);
-                    let http_response = format!(
-                        "HTTP/1.1 500 Internal Server Error\r\nContent-Type: application/json\r\nContent-Length: {}\r\n\r\n{}",
-                        error_response.len(),
-                        error_response
-                    );
-                    stream.write_all(http_response.as_bytes()).await?;
-                }
-            }
-        }
-    } else {
-        // 404 for other paths
-        let response = "HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\n\r\n";
-        stream.write_all(response.as_bytes()).await?;
+    // Validate HTTP mode requirements
+    if config.mcp_auth_tokens.is_empty() {
+        return Err(Error::Config {
+            message: "MCP_AUTH_TOKENS environment variable required for HTTP mode \
+                      (comma-separated list of allowed tokens)"
+                .to_string(),
+            source: None,
+        });
     }
 
-    Ok(())
+    if config.outline_api_key.is_some() {
+        warn!(
+            "OUTLINE_API_KEY is set but ignored in HTTP mode. \
+             Each client must provide their own key via Authorization header."
+        );
+    }
+
+    let server = http::server::HttpServer::bind(&config).await?;
+    server.run().await
 }
 
 #[cfg(test)]
@@ -232,5 +174,13 @@ mod tests {
 
         // Test that error types work correctly
         // Test passes if error creation doesn't panic
+    }
+
+    #[test]
+    fn test_http_transport_error() {
+        let _error = Error::HttpTransport {
+            status: 401,
+            message: "Unauthorized".to_string(),
+        };
     }
 }

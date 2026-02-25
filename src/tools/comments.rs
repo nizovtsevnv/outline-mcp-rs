@@ -3,7 +3,9 @@
 use serde_json::{json, Value};
 use tracing::debug;
 
-use super::common::{create_mcp_success_response, get_string_arg, tool_definition};
+use super::common::{
+    create_mcp_success_response, get_optional_number_arg, get_string_arg, tool_definition,
+};
 use crate::error::Result;
 use crate::outline::{create_comment_request, Client as OutlineClient};
 
@@ -31,6 +33,19 @@ pub fn get_comment_tools() -> Vec<Value> {
             "Delete comment",
             &[("id", "string", "Comment ID")],
         ),
+        tool_definition(
+            "list_document_comments",
+            "List comments for a document",
+            &[
+                ("document_id", "string", "Document ID"),
+                ("limit", "number", "Number of comments (optional)"),
+            ],
+        ),
+        tool_definition(
+            "get_comment",
+            "Get comment by ID",
+            &[("id", "string", "Comment ID")],
+        ),
     ]
 }
 
@@ -44,6 +59,8 @@ pub async fn call_comment_tool(
         "create_comment" => create_comment(arguments, client).await,
         "update_comment" => update_comment(arguments, client).await,
         "delete_comment" => delete_comment(arguments, client).await,
+        "list_document_comments" => list_document_comments(arguments, client).await,
+        "get_comment" => get_comment(arguments, client).await,
         _ => unreachable!("Unknown comment tool: {}", name),
     }
 }
@@ -91,6 +108,39 @@ async fn delete_comment(args: Value, client: &OutlineClient) -> Result<Value> {
 
     Ok(create_mcp_success_response(
         "Comment deleted successfully",
+        Some(response),
+    ))
+}
+
+async fn list_document_comments(args: Value, client: &OutlineClient) -> Result<Value> {
+    let document_id = get_string_arg(&args, "document_id")?;
+    let limit = get_optional_number_arg(&args, "limit");
+
+    debug!("Listing comments for document: {}", document_id);
+
+    let mut request_body = json!({ "documentId": document_id });
+    if let Some(lim) = limit {
+        request_body["limit"] = json!(lim);
+    }
+
+    let response = client.post("comments.list", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Comments listed successfully",
+        Some(response),
+    ))
+}
+
+async fn get_comment(args: Value, client: &OutlineClient) -> Result<Value> {
+    let id = get_string_arg(&args, "id")?;
+
+    debug!("Getting comment: {}", id);
+
+    let request_body = json!({ "id": id });
+    let response = client.post("comments.info", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Comment retrieved successfully",
         Some(response),
     ))
 }

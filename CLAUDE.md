@@ -133,18 +133,18 @@ echo "✅ All checks passed!"
 ### Test Types
 1. **Unit tests** - testing individual functions and modules
 2. **Integration tests** - testing interaction between modules
-3. **End-to-end tests** - testing through gRPC API
+3. **End-to-end tests** - testing full workflows
 
 ### Test Structure
 ```
 tests/
-├── integration/        # Integration tests
-│   ├── some_mod1_tests.rs
-│   ├── some_mod2_tests.rs
+├── integration/              # Integration tests
+│   ├── mcp_tests.rs          # MCP protocol tests
+│   ├── http_transport_tests.rs # HTTP transport tests
 │   └── common/
-│       └── mod.rs     # Common test utilities
-└── e2e/               # End-to-end tests
-    └── some_mod3_tests.rs
+│       └── mod.rs            # Common test utilities
+└── e2e/                      # End-to-end tests
+    └── full_workflow_tests.rs
 ```
 
 ## Security Standards

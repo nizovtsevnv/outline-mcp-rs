@@ -46,22 +46,30 @@ pub async fn call_tool(name: &str, arguments: Value, client: &OutlineClient) -> 
         | "search_documents"
         | "archive_document"
         | "move_document"
-        | "create_template_from_document" => {
-            documents::call_document_tool(name, arguments, client).await
-        }
+        | "create_template_from_document"
+        | "restore_document"
+        | "unarchive_document"
+        | "list_drafts" => documents::call_document_tool(name, arguments, client).await,
 
         // Collection tools
-        "create_collection" | "get_collection" | "update_collection" | "list_collections" => {
+        "create_collection"
+        | "get_collection"
+        | "update_collection"
+        | "list_collections"
+        | "delete_collection"
+        | "get_collection_documents" => {
             collections::call_collection_tool(name, arguments, client).await
         }
 
         // Comment tools
-        "create_comment" | "update_comment" | "delete_comment" => {
-            comments::call_comment_tool(name, arguments, client).await
-        }
+        "create_comment"
+        | "update_comment"
+        | "delete_comment"
+        | "list_document_comments"
+        | "get_comment" => comments::call_comment_tool(name, arguments, client).await,
 
         // User tools
-        "list_users" => users::call_user_tool(name, arguments, client).await,
+        "list_users" | "get_user" => users::call_user_tool(name, arguments, client).await,
 
         // Unknown tool - return MCP-compliant error
         _ => {
@@ -85,7 +93,7 @@ mod tests {
     #[test]
     fn test_get_tools_list() {
         let tools = get_tools_list();
-        assert_eq!(tools.len(), 17);
+        assert_eq!(tools.len(), 25);
 
         // Check first tool is a document tool
         let first_tool = &tools[0];

@@ -113,6 +113,15 @@ pub enum Error {
         source: std::io::Error,
     },
 
+    /// HTTP transport errors (status code + message)
+    #[error("HTTP transport error: {status} {message}")]
+    HttpTransport {
+        /// HTTP status code
+        status: u16,
+        /// Error message
+        message: String,
+    },
+
     /// Internal application errors
     #[allow(dead_code)]
     #[error("Internal error: {message}")]
@@ -246,6 +255,15 @@ impl From<std::string::FromUtf8Error> for Error {
     fn from(err: std::string::FromUtf8Error) -> Self {
         Self::Transport {
             transport_type: "String conversion".to_string(),
+            source: Box::new(err),
+        }
+    }
+}
+
+impl From<hyper::Error> for Error {
+    fn from(err: hyper::Error) -> Self {
+        Self::Transport {
+            transport_type: "HTTP".to_string(),
             source: Box::new(err),
         }
     }

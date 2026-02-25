@@ -40,6 +40,16 @@ pub fn get_collection_tools() -> Vec<Value> {
             "List collections",
             &[("limit", "number", "Number of collections (optional)")],
         ),
+        tool_definition(
+            "delete_collection",
+            "Delete collection",
+            &[("id", "string", "Collection ID")],
+        ),
+        tool_definition(
+            "get_collection_documents",
+            "Get document structure of a collection",
+            &[("id", "string", "Collection ID")],
+        ),
     ]
 }
 
@@ -54,6 +64,8 @@ pub async fn call_collection_tool(
         "get_collection" => get_collection(arguments, client).await,
         "update_collection" => update_collection(arguments, client).await,
         "list_collections" => list_collections(arguments, client).await,
+        "delete_collection" => delete_collection(arguments, client).await,
+        "get_collection_documents" => get_collection_documents(arguments, client).await,
         _ => unreachable!("Unknown collection tool: {}", name),
     }
 }
@@ -123,6 +135,34 @@ async fn list_collections(args: Value, client: &OutlineClient) -> Result<Value> 
     let response = client.post("collections.list", request_body).await?;
     Ok(create_mcp_success_response(
         "Collection retrieved successfully",
+        Some(response),
+    ))
+}
+
+async fn delete_collection(args: Value, client: &OutlineClient) -> Result<Value> {
+    let id = get_string_arg(&args, "id")?;
+
+    debug!("Deleting collection: {}", id);
+
+    let request_body = json!({ "id": id });
+    let response = client.post("collections.delete", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Collection deleted successfully",
+        Some(response),
+    ))
+}
+
+async fn get_collection_documents(args: Value, client: &OutlineClient) -> Result<Value> {
+    let id = get_string_arg(&args, "id")?;
+
+    debug!("Getting collection documents: {}", id);
+
+    let request_body = json!({ "id": id });
+    let response = client.post("collections.documents", request_body).await?;
+
+    Ok(create_mcp_success_response(
+        "Collection documents retrieved successfully",
         Some(response),
     ))
 }

@@ -150,7 +150,7 @@
     src = ./.;
     
             # Use cargoHash instead of lockFile for better compatibility
-        cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+        cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ pkgs.openssl ] ++ pkgs.lib.optionals pkgs.stdenv.isDarwin [
@@ -172,7 +172,7 @@
     version = packageMeta.version;
     src = ./.;
     
-    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ pkgs.pkgsStatic.openssl ];
@@ -196,7 +196,7 @@
     version = packageMeta.version;
     src = ./.;
     
-    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ 
@@ -223,7 +223,7 @@
     version = packageMeta.version;
     src = ./.;
     
-    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = [ 
@@ -247,7 +247,7 @@
     version = packageMeta.version;
     src = ./.;
     
-    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = with pkgs.pkgsCross.x86_64-darwin; [
@@ -272,7 +272,7 @@
     version = packageMeta.version;
     src = ./.;
     
-    cargoHash = "sha256-CfU++oEyFCZO3ukAjpbsBOzrN1adC20xOEsKKzBAP5M=";
+    cargoHash = "sha256-GWXchct9TEL+blD442TZyMATl4LW2kfwphfwzJ0tTpo=";
     
     nativeBuildInputs = [ pkgs.pkg-config ];
     buildInputs = with pkgs.pkgsCross.aarch64-darwin; [

@@ -9,11 +9,15 @@ pub fn create_test_config() -> Config {
     use std::net::IpAddr;
 
     Config {
-        outline_api_key: ApiKey::new("test_api_key".to_string()).unwrap(),
+        outline_api_key: Some(ApiKey::new("test_api_key".to_string()).unwrap()),
         outline_api_url: "https://test.example.com".parse().unwrap(),
         http_host: "127.0.0.1".parse::<IpAddr>().unwrap(),
         http_port: Port::new(3000).unwrap(),
         log_level: LogLevel::new("info").unwrap(),
+        http_max_body_size: 1_048_576,
+        http_session_timeout: 1800,
+        http_rate_limit: 60,
+        mcp_auth_tokens: vec!["test-mcp-token".to_string()],
     }
 }
 
@@ -54,8 +58,15 @@ mod tests {
     #[test]
     fn test_create_test_config() {
         let config = create_test_config();
-        assert_eq!(config.outline_api_key.as_str(), "test_api_key");
+        assert_eq!(
+            config.outline_api_key.as_ref().unwrap().as_str(),
+            "test_api_key"
+        );
         assert_eq!(config.http_host.to_string(), "127.0.0.1");
+        assert_eq!(config.http_max_body_size, 1_048_576);
+        assert_eq!(config.http_session_timeout, 1800);
+        assert_eq!(config.http_rate_limit, 60);
+        assert!(!config.mcp_auth_tokens.is_empty());
     }
 
     #[test]

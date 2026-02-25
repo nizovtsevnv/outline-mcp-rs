@@ -35,24 +35,37 @@ path = "tests/integration/mcp_tests.rs"
 name = "full_workflow_tests"
 path = "tests/e2e/full_workflow_tests.rs"
 
+[[test]]
+name = "http_transport_tests"
+path = "tests/integration/http_transport_tests.rs"
+
 # Platform-specific dependencies to handle threading differences
 [target.'cfg(not(windows))'.dependencies]
-tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros"], default-features = false }
+tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros", "sync", "signal", "time"], default-features = false }
 
 [target.'cfg(windows)'.dependencies]
 # Windows: exclude rt-multi-thread to avoid pthread linking issues
-tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros"], default-features = false }
+tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros", "sync", "signal", "time"], default-features = false }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 # macOS: full tokio features
-tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros"], default-features = false }
+tokio = { version = "1.0", features = ["rt", "rt-multi-thread", "net", "io-util", "macros", "sync", "signal", "time"], default-features = false }
 
 [dependencies]
 # Runtime (minimal tokio for async - platform specific config at bottom)
-tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros"], default-features = false }
+tokio = { version = "1.0", features = ["rt", "net", "io-util", "macros", "sync", "signal", "time"], default-features = false }
 
 # HTTP client with TLS support
-reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+reqwest = { version = "0.12", features = ["json", "rustls-tls"], default-features = false }
+
+# HTTP server (hyper 1.x ecosystem)
+hyper = { version = "1.6", features = ["http1", "server"], default-features = false }
+hyper-util = { version = "0.1", features = ["tokio", "http1"], default-features = false }
+http-body-util = "0.1"
+bytes = "1.0"
+
+# UUID for session IDs
+uuid = { version = "1.0", features = ["v4"], default-features = false }
 
 # JSON processing
 serde_json = "1.0"
