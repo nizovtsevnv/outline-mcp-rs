@@ -67,10 +67,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_sse_body_receives_data() {
+        use hyper::body::Body;
+
         let (tx, rx) = mpsc::channel(16);
         let mut body = SseBody::new(rx);
-
-        use hyper::body::Body;
 
         tx.send(encode_event(r#"{"id":1}"#)).await.unwrap();
         drop(tx);
