@@ -55,10 +55,15 @@ pub fn get_optional_number_arg(args: &Value, name: &str) -> Option<i64> {
 
 /// Create MCP-compliant success response with structured content
 pub fn create_mcp_success_response(message: &str, structured_content: Option<Value>) -> Value {
+    let text = structured_content.as_ref().map_or_else(
+        || message.to_string(),
+        |content| serde_json::to_string(content).unwrap_or_else(|_| message.to_string()),
+    );
+
     let mut result = json!({
         "content": [{
             "type": "text",
-            "text": message
+            "text": text
         }],
         "isError": false
     });
